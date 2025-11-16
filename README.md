@@ -20,9 +20,18 @@ We have completed comprehensive planning and architecture design. The project is
 
 ## Documentation
 
+### Planning & Architecture
 - **[PROJECT_PLAN.md](PROJECT_PLAN.md)** - Comprehensive project architecture, phases, and timeline
 - **[TECHNICAL_SPEC.md](TECHNICAL_SPEC.md)** - Detailed implementation specifications and code examples
-- **[QUICK_START.md](QUICK_START.md)** - Development environment setup and getting started guide
+- **[ROADMAP.md](ROADMAP.md)** - Detailed task breakdown with 100+ actionable tasks, priorities, and dependencies
+
+### Milestones & Tracking
+- **[MILESTONES.md](MILESTONES.md)** - 6 major milestones with acceptance criteria and demo requirements
+- **[SPRINT_PLANNING.md](SPRINT_PLANNING.md)** - Sprint templates, task tracking, and progress visualization
+- **[GETTING_STARTED.md](GETTING_STARTED.md)** - Your first steps and week-by-week guide
+
+### Developer Guide
+- **[QUICK_START.md](QUICK_START.md)** - Development environment setup and configuration
 
 ## Key Features
 
