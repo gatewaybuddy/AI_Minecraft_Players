@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "aiplayer",
+  "version": "${version}",
+  "name": "AI Minecraft Player",
+  "description": "An autonomous AI player mod that creates fully functional AI players capable of performing all player actions, communicating naturally, and collaborating on tasks.",
+  "authors": [
+    "AI Minecraft Player Team"
+  ],
+  "contact": {
+    "homepage": "https://github.com/yourusername/AI_Minecraft_Players",
+    "sources": "https://github.com/yourusername/AI_Minecraft_Players",
+    "issues": "https://github.com/yourusername/AI_Minecraft_Players/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/aiplayer/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.aiplayer.AIPlayerMod"
+    ]
+  },
+  "mixins": [
+    "aiplayer.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "minecraft": "~1.20.4",
+    "java": ">=17"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
