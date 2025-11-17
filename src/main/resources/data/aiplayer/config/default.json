@@ -1,12 +1,23 @@
 {
+  "_comment": "AI Minecraft Player Configuration - Phase 3+",
+  "_providers": {
+    "openai": "GPT-4, GPT-3.5 (requires apiKey)",
+    "claude": "Claude 3.5 Sonnet, Claude 3 Haiku (requires apiKey)",
+    "local": "Ollama - Mistral, LLaMA, etc. (no apiKey needed)"
+  },
+  "_models": {
+    "openai": ["gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"],
+    "claude": ["claude-3-5-sonnet-20240620", "claude-3-haiku-20240307"],
+    "local": ["mistral", "llama2", "codellama"]
+  },
   "username": "AISteve",
   "personality": "helpful and curious",
   "llm": {
     "provider": "openai",
-    "model": "gpt-4",
-    "apiKey": "YOUR_API_KEY_HERE",
+    "model": "gpt-4-turbo",
+    "apiKey": "",
     "localModelUrl": "http://localhost:11434",
-    "maxTokens": 1000,
+    "maxTokens": 1500,
     "temperature": 0.7
   },
   "behavior": {
