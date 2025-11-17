@@ -87,6 +87,9 @@ public class AIPlayerBrain {
     public void update(WorldState worldState) {
         ticksSinceLastDecision++;
 
+        // Store world state for access by other systems (Phase 4)
+        storeWorldState(worldState);
+
         // Only make decisions periodically to reduce CPU usage
         if (ticksSinceLastDecision < DECISION_INTERVAL_TICKS) {
             return;
@@ -385,6 +388,111 @@ public class AIPlayerBrain {
         }
         return String.format("Walking to %.1f, %.1f, %.1f",
             currentMovementTarget.x, currentMovementTarget.y, currentMovementTarget.z);
+    }
+
+    /**
+     * Check if AI can accept a new goal (Phase 4: Chat Integration).
+     *
+     * @param goal Goal to check
+     * @return true if goal can be accepted
+     */
+    public boolean canAcceptGoal(Goal goal) {
+        if (goal == null) {
+            return false;
+        }
+
+        // Cannot accept goals in simple mode without planning
+        if (!intelligentMode || planningEngine == null) {
+            LOGGER.debug("Cannot accept goal in simple mode");
+            return false;
+        }
+
+        // Check if we have too many active goals (max 5)
+        if (getActiveGoals().size() >= 5) {
+            LOGGER.debug("Cannot accept goal: too many active goals ({})", getActiveGoals().size());
+            return false;
+        }
+
+        // Basic validation
+        if (goal.getStatus() == Goal.GoalStatus.COMPLETED ||
+            goal.getStatus() == Goal.GoalStatus.FAILED) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Add a new goal for the AI to pursue (Phase 4: Chat Integration).
+     *
+     * @param goal Goal to add
+     * @return true if goal was added successfully
+     */
+    public boolean addGoal(Goal goal) {
+        if (!canAcceptGoal(goal)) {
+            return false;
+        }
+
+        try {
+            planningEngine.addGoal(goal);
+            LOGGER.info("Added goal: {}", goal.getDescription());
+
+            // Store in memory
+            memorySystem.store(new Memory(
+                Memory.MemoryType.GOAL_COMPLETION,
+                "Accepted new goal: " + goal.getDescription(),
+                0.8
+            ));
+
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("Failed to add goal: " + goal.getDescription(), e);
+            return false;
+        }
+    }
+
+    /**
+     * Get the current goal being executed (Phase 4: Chat Integration).
+     *
+     * @return Current goal, or null if none
+     */
+    public Goal getCurrentGoal() {
+        if (intelligentMode && planningEngine != null) {
+            return planningEngine.getCurrentGoal().orElse(null);
+        }
+        return null;
+    }
+
+    /**
+     * Get all active goals (Phase 4: Chat Integration).
+     *
+     * @return List of active goals
+     */
+    public java.util.List<Goal> getActiveGoals() {
+        if (intelligentMode && planningEngine != null) {
+            return planningEngine.getActiveGoals();
+        }
+        return java.util.Collections.emptyList();
+    }
+
+    /**
+     * Get current world state (Phase 4: Chat Integration).
+     * This is used by ResponseGenerator to provide context.
+     *
+     * @return Current world state, or null if not available
+     */
+    private WorldState currentWorldState;
+
+    public WorldState getWorldState() {
+        return currentWorldState;
+    }
+
+    /**
+     * Store current world state for access by other systems.
+     * Called during update() cycle.
+     */
+    private void storeWorldState(WorldState worldState) {
+        this.currentWorldState = worldState;
     }
 
     /**

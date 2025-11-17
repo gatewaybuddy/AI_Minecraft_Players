@@ -1,6 +1,9 @@
 package com.aiplayer.core;
 
 import com.aiplayer.AIPlayerMod;
+import com.aiplayer.communication.ChatListener;
+import com.aiplayer.communication.MessageProcessor;
+import com.aiplayer.communication.ResponseGenerator;
 import com.aiplayer.config.AIPlayerConfig;
 import com.aiplayer.llm.LLMFactory;
 import com.aiplayer.llm.LLMProvider;
@@ -40,6 +43,12 @@ public class AIPlayerManager {
 
     // LLM provider (shared by all AI players)
     private LLMProvider llmProvider;
+
+    // Phase 4: Chat system components
+    private ChatListener chatListener;
+    private MessageProcessor messageProcessor;
+    private ResponseGenerator responseGenerator;
+    private boolean chatSystemInitialized = false;
 
     public AIPlayerManager() {
         LOGGER.info("AIPlayerManager initialized");
@@ -92,6 +101,43 @@ public class AIPlayerManager {
      */
     public void setServer(MinecraftServer server) {
         this.server = server;
+
+        // Initialize chat system if not already done (Phase 4)
+        if (!chatSystemInitialized) {
+            initializeChatSystem();
+        }
+    }
+
+    /**
+     * Initialize chat system for AI player communication (Phase 4).
+     * Called when the first AI player is spawned.
+     */
+    private void initializeChatSystem() {
+        try {
+            // Create response generator with LLM provider
+            this.responseGenerator = new ResponseGenerator(llmProvider);
+
+            // Create message processor
+            this.messageProcessor = new MessageProcessor(responseGenerator);
+
+            // Create and register chat listener
+            this.chatListener = new ChatListener(this, messageProcessor);
+            this.chatListener.register();
+
+            this.chatSystemInitialized = true;
+            LOGGER.info("Phase 4 chat system initialized successfully");
+
+            if (llmProvider != null) {
+                LOGGER.info("Chat responses will use LLM: {} ({})",
+                    llmProvider.getProviderName(), llmProvider.getModelName());
+            } else {
+                LOGGER.info("Chat responses will use fallback templates (no LLM)");
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("Failed to initialize chat system", e);
+            LOGGER.warn("AI players will not be able to respond to chat");
+        }
     }
 
     /**
@@ -112,6 +158,17 @@ public class AIPlayerManager {
      * Check if an AI player exists with the given UUID.
      */
     public boolean hasPlayer(UUID uuid) {
+        return aiPlayersByUuid.containsKey(uuid);
+    }
+
+    /**
+     * Check if a given UUID belongs to an AI player (Phase 4: Chat Integration).
+     * Used by ChatListener to filter AI messages.
+     *
+     * @param uuid UUID to check
+     * @return true if this UUID is an AI player
+     */
+    public boolean isAIPlayer(UUID uuid) {
         return aiPlayersByUuid.containsKey(uuid);
     }
 
@@ -290,6 +347,11 @@ public class AIPlayerManager {
 
         aiPlayers.clear();
         aiPlayersByUuid.clear();
+
+        // Cleanup chat system (Phase 4)
+        if (chatListener != null) {
+            chatListener.unregister();
+        }
 
         LOGGER.info("All AI players cleaned up");
     }

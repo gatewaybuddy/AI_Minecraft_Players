@@ -201,12 +201,40 @@ public class AIPlayerEntity extends ServerPlayerEntity {
     }
 
     /**
-     * Send a message to nearby players.
+     * Send a message to all players (public chat).
      * Used for AI chat (Phase 4).
      */
     public void sendChatMessage(String message) {
+        if (message == null || message.trim().isEmpty()) {
+            return;
+        }
         Text text = Text.literal("<" + getName().getString() + "> " + message);
         getServer().getPlayerManager().broadcast(text, false);
+        LOGGER.debug("AI {} sent chat: {}", getName().getString(), message);
+    }
+
+    /**
+     * Send a private message to a specific player.
+     * Used for AI chat (Phase 4).
+     */
+    public void sendPrivateMessage(ServerPlayerEntity recipient, String message) {
+        if (message == null || message.trim().isEmpty() || recipient == null) {
+            return;
+        }
+        Text text = Text.literal("[" + getName().getString() + " whispers] " + message);
+        recipient.sendMessage(text, false);
+        LOGGER.debug("AI {} sent private message to {}: {}",
+            getName().getString(), recipient.getName().getString(), message);
+    }
+
+    /**
+     * Get AI player configuration.
+     * Returns null for now - will be connected to AIPlayerConfig in integration.
+     */
+    @Nullable
+    public com.aiplayer.config.AIPlayerConfig getConfig() {
+        // Will be set via AIPlayerManager in integration
+        return null;
     }
 
     /**
