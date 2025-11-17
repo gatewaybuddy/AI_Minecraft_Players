@@ -1,0 +1,39 @@
+{
+  "_role": "Builder - Specializes in construction and creating structures",
+
+  "username": "AIBuilder",
+  "personality": {
+    "description": "creative builder who loves constructing structures and organizing spaces",
+    "role": "builder",
+    "traits": {
+      "aggression": 0.1,
+      "curiosity": 0.6,
+      "caution": 0.7,
+      "sociability": 0.6,
+      "independence": 0.6
+    },
+    "preferences": {
+      "mining": 0.4,
+      "building": 1.0,
+      "exploration": 0.4,
+      "combat": 0.1,
+      "farming": 0.6,
+      "trading": 0.5
+    }
+  },
+
+  "goals": {
+    "defaultGoal": "build useful structures and organize resources",
+    "acceptPlayerRequests": true,
+    "maxActiveGoals": 2,
+    "autonomousGoalGeneration": true
+  },
+
+  "behavior": {
+    "reactionTimeMs": 250,
+    "movementHumanization": true,
+    "chatEnabled": true,
+    "autoRespawn": true,
+    "actionCacheSize": 100
+  }
+}
