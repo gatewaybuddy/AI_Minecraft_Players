@@ -1,6 +1,7 @@
 package com.aiplayer.core;
 
 import com.aiplayer.action.ActionController;
+import com.aiplayer.llm.LLMProvider;
 import com.aiplayer.perception.WorldPerceptionEngine;
 import com.aiplayer.perception.WorldState;
 import com.mojang.authlib.GameProfile;
@@ -45,7 +46,34 @@ public class AIPlayerEntity extends ServerPlayerEntity {
     private final boolean autoRespawn;
 
     /**
-     * Create a new AI player entity.
+     * Create a new AI player entity with LLM provider (intelligent mode).
+     *
+     * @param server Minecraft server instance
+     * @param world The world to spawn in
+     * @param profile Player profile (name and UUID)
+     * @param autoRespawn Whether to automatically respawn on death
+     * @param llmProvider LLM provider for intelligent planning (null for simple mode)
+     */
+    public AIPlayerEntity(MinecraftServer server, ServerWorld world, GameProfile profile, boolean autoRespawn, LLMProvider llmProvider) {
+        super(server, world, profile, null);
+
+        this.aiPlayerId = UUID.randomUUID();
+        this.autoRespawn = autoRespawn;
+
+        // Initialize AI components with LLM provider
+        this.brain = new AIPlayerBrain(this, llmProvider);
+        this.perceptionEngine = new WorldPerceptionEngine(this);
+        this.actionController = new ActionController(this, false); // PvP disabled by default
+
+        // Set game mode to survival
+        this.changeGameMode(GameMode.SURVIVAL);
+
+        String mode = (llmProvider != null && brain.isIntelligentMode()) ? "INTELLIGENT" : "SIMPLE";
+        LOGGER.info("Created AI player: {} (UUID: {}, mode: {})", profile.getName(), aiPlayerId, mode);
+    }
+
+    /**
+     * Create a new AI player entity in simple mode (no LLM).
      *
      * @param server Minecraft server instance
      * @param world The world to spawn in
@@ -53,20 +81,7 @@ public class AIPlayerEntity extends ServerPlayerEntity {
      * @param autoRespawn Whether to automatically respawn on death
      */
     public AIPlayerEntity(MinecraftServer server, ServerWorld world, GameProfile profile, boolean autoRespawn) {
-        super(server, world, profile, null);
-
-        this.aiPlayerId = UUID.randomUUID();
-        this.autoRespawn = autoRespawn;
-
-        // Initialize AI components
-        this.brain = new AIPlayerBrain(this);
-        this.perceptionEngine = new WorldPerceptionEngine(this);
-        this.actionController = new ActionController(this, false); // PvP disabled by default
-
-        // Set game mode to survival
-        this.changeGameMode(GameMode.SURVIVAL);
-
-        LOGGER.info("Created AI player: {} (UUID: {})", profile.getName(), aiPlayerId);
+        this(server, world, profile, autoRespawn, null);
     }
 
     /**

@@ -1,6 +1,9 @@
 package com.aiplayer.core;
 
 import com.aiplayer.AIPlayerMod;
+import com.aiplayer.config.AIPlayerConfig;
+import com.aiplayer.llm.LLMFactory;
+import com.aiplayer.llm.LLMProvider;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
@@ -35,8 +38,52 @@ public class AIPlayerManager {
     // Server reference (set when first AI spawns)
     private MinecraftServer server;
 
+    // LLM provider (shared by all AI players)
+    private LLMProvider llmProvider;
+
     public AIPlayerManager() {
         LOGGER.info("AIPlayerManager initialized");
+        initializeLLMProvider();
+    }
+
+    /**
+     * Initialize LLM provider from config.
+     */
+    private void initializeLLMProvider() {
+        try {
+            AIPlayerConfig.LLMConfig llmConfig = AIPlayerMod.getConfig().getLlm();
+
+            // Check if API key is provided (not needed for local)
+            String apiKey = llmConfig.getApiKey();
+            if ((llmConfig.getProvider().equals("openai") || llmConfig.getProvider().equals("claude"))
+                && (apiKey == null || apiKey.trim().isEmpty())) {
+                LOGGER.warn("LLM API key not configured - AI players will run in SIMPLE mode");
+                LOGGER.info("To enable intelligent mode, set apiKey in aiplayer-config.json");
+                this.llmProvider = null;
+                return;
+            }
+
+            // Create LLM provider
+            this.llmProvider = LLMFactory.create(
+                llmConfig.getProvider(),
+                apiKey,
+                llmConfig.getModel(),
+                llmConfig.getLocalModelUrl(),
+                true // Enable caching
+            );
+
+            if (this.llmProvider != null) {
+                LOGGER.info("LLM provider initialized: {} ({})",
+                    this.llmProvider.getProviderName(),
+                    this.llmProvider.getModelName());
+            } else {
+                LOGGER.warn("Failed to initialize LLM provider - AI players will run in SIMPLE mode");
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("Error initializing LLM provider - AI players will run in SIMPLE mode", e);
+            this.llmProvider = null;
+        }
     }
 
     /**
@@ -104,8 +151,8 @@ public class AIPlayerManager {
             // Get auto-respawn setting from config
             boolean autoRespawn = AIPlayerMod.getConfig().getBehavior().isAutoRespawn();
 
-            // Create the AI player entity
-            AIPlayerEntity aiPlayer = new AIPlayerEntity(server, world, profile, autoRespawn);
+            // Create the AI player entity with LLM provider
+            AIPlayerEntity aiPlayer = new AIPlayerEntity(server, world, profile, autoRespawn, llmProvider);
 
             // Set spawn position
             aiPlayer.refreshPositionAndAngles(spawnPos.x, spawnPos.y, spawnPos.z, 0, 0);
