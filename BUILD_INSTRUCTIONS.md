@@ -1,148 +1,71 @@
-# Build Instructions
+# Build Instructions - AI Minecraft Players
+
+**For Developers**: Complete guide to building the mod from source
+
+---
 
 ## Prerequisites
 
-- Java JDK 17 or higher
-- Internet connection (for first build to download dependencies)
-- Minecraft Java Edition 1.20.4 (for testing)
+### Required Software
 
-## Building the Mod
+- **Java Development Kit (JDK) 17 or higher**
+  - Download: https://adoptium.net/
+  - Verify: `java -version` and `javac -version`
 
-### First Time Setup
+- **Git** (for cloning repository)
+  - Download: https://git-scm.com/
+  - Verify: `git --version`
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/AI_Minecraft_Players.git
-   cd AI_Minecraft_Players
-   ```
+- **8 GB RAM minimum** (for Gradle build)
 
-2. **Build the mod** (requires internet for dependency download):
-   ```bash
-   ./gradlew build
-   ```
+---
 
-   On Windows:
-   ```cmd
-   gradlew.bat build
-   ```
+## Quick Build
 
-3. **The built JAR will be in**: `build/libs/ai-minecraft-player-0.1.0-SNAPSHOT.jar`
+\`\`\`bash
+# Clone repository
+git clone https://github.com/gatewaybuddy/AI_Minecraft_Players.git
+cd AI_Minecraft_Players
 
-### Testing in Development
+# Build mod
+./gradlew build        # Unix/Linux/Mac
+gradlew.bat build      # Windows
 
-Run the Minecraft client with the mod loaded:
+# Find output
+ls -l build/libs/
+# Output: ai-minecraft-player-0.1.0-SNAPSHOT.jar
+\`\`\`
 
-```bash
+---
+
+## Development Setup
+
+### IntelliJ IDEA (Recommended)
+
+1. Install Minecraft Development plugin
+2. Import project as Gradle project
+3. Run: `./gradlew genSources`
+4. Use Gradle tasks: runClient, runServer
+
+### Building
+
+\`\`\`bash
+# Clean build
+./gradlew clean build
+
+# Run Minecraft client with mod
 ./gradlew runClient
-```
 
-Run a dedicated server with the mod:
+# Run tests
+./gradlew test
+\`\`\`
 
-```bash
-./gradlew runServer
-```
+---
 
-## Configuration
+## Output
 
-Before running, configure your LLM API key:
+Built JAR: `build/libs/ai-minecraft-player-0.1.0-SNAPSHOT.jar`
 
-1. Copy the default configuration:
-   ```bash
-   cp src/main/resources/data/aiplayer/config/default.json config/aiplayer.json
-   ```
+Install by copying to `.minecraft/mods/` folder.
 
-2. Edit `config/aiplayer.json` and add your API key:
-   ```json
-   {
-     "llm": {
-       "provider": "openai",
-       "apiKey": "sk-your-actual-api-key-here"
-     }
-   }
-   ```
-
-3. **IMPORTANT**: Never commit `config/aiplayer.json` with your actual API key!
-
-## Build Issues
-
-### Issue: "Plugin 'fabric-loom' was not found"
-
-**Solution**: This happens when Gradle can't download the Fabric Loom plugin. Ensure you have internet access on first build.
-
-### Issue: "Cannot resolve dependencies"
-
-**Solution**: Run with `--refresh-dependencies`:
-```bash
-./gradlew build --refresh-dependencies
-```
-
-### Issue: Build fails with out of memory error
-
-**Solution**: Increase Gradle memory in `gradle.properties`:
-```
-org.gradle.jvmargs=-Xmx4G
-```
-
-## Development Workflow
-
-1. **Make code changes** in `src/main/java/`
-2. **Build**: `./gradlew build`
-3. **Test**: `./gradlew runClient`
-4. **Debug**: Use IntelliJ IDEA's built-in Gradle integration
-
-## Installing the Mod
-
-### For Testing
-
-The mod is automatically loaded when running `./gradlew runClient`.
-
-### For Use in Regular Minecraft
-
-1. Install Fabric Loader for Minecraft 1.20.4
-2. Download Fabric API from https://www.curseforge.com/minecraft/mc-mods/fabric-api
-3. Copy `build/libs/ai-minecraft-player-0.1.0-SNAPSHOT.jar` to `.minecraft/mods/`
-4. Copy Fabric API JAR to `.minecraft/mods/`
-5. Launch Minecraft with the Fabric profile
-
-## Current Implementation Status
-
-As of the current commit, the following is implemented:
-
-### ✅ Completed (Phase 1 - Foundation, Partial)
-- [x] Project structure and Gradle build setup
-- [x] Configuration system (`AIPlayerConfig.java`)
-- [x] Main mod entry point (`AIPlayerMod.java`)
-- [x] AI Player Manager stub (`AIPlayerManager.java`)
-- [x] Package structure for all modules
-
-### 🚧 In Progress
-- [ ] FakePlayer entity creation (Task 1.5)
-- [ ] Movement controller (Task 1.6)
-- [ ] Perception system (Task 1.7)
-- [ ] Commands (`/aiplayer spawn`, etc.) (Task 1.8)
-
-### ⏳ Not Started
-- [ ] Remaining Phase 1 tasks
-- [ ] Phases 2-6
-
-See `ROADMAP.md` for the complete task list.
-
-## Getting Help
-
-- Check `QUICK_START.md` for detailed setup instructions
-- Review `TECHNICAL_SPEC.md` for implementation details
-- See `TROUBLESHOOTING.md` for common issues (to be created)
-- Open an issue on GitHub if you encounter problems
-
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Follow the architecture defined in `TECHNICAL_SPEC.md`
-2. Check `ROADMAP.md` for available tasks
-3. Write tests for new features
-4. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details
+**Happy Building!** 🚀
