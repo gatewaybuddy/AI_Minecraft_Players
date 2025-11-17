@@ -1,8 +1,11 @@
 package com.aiplayer;
 
+import com.aiplayer.command.AIPlayerCommand;
 import com.aiplayer.config.AIPlayerConfig;
 import com.aiplayer.core.AIPlayerManager;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,16 +87,23 @@ public class AIPlayerMod implements ModInitializer {
      * Register mod commands.
      */
     private void registerCommands() {
-        // Commands will be registered in Phase 1, Task 1.8
-        LOGGER.debug("Command registration placeholder - will be implemented in Task 1.8");
+        CommandRegistrationCallback.EVENT.register(AIPlayerCommand::register);
+        LOGGER.info("Registered /aiplayer commands");
     }
 
     /**
      * Register event listeners.
      */
     private void registerEvents() {
-        // Event listeners will be registered in later phases
-        LOGGER.debug("Event registration placeholder - will be implemented in later phases");
+        // Register server shutdown handler to cleanup AI players
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> {
+            LOGGER.info("Server stopping, cleaning up AI players...");
+            if (playerManager != null) {
+                playerManager.cleanupAll();
+            }
+        });
+
+        LOGGER.info("Registered event listeners");
     }
 
     /**
