@@ -14,9 +14,25 @@ This project implements an AI-powered Minecraft player that:
 
 ## Project Status
 
-🔄 **Currently in Planning Phase**
+🚧 **Phase 1: Foundation - In Progress**
 
-We have completed comprehensive planning and architecture design. The project is ready to begin implementation.
+**Current Milestone:** M1 - Foundation (Week 1 of 3)
+
+**Completed:**
+- ✅ Comprehensive planning and architecture (Phase 0)
+- ✅ Project structure and build system (Task 1.2)
+- ✅ Configuration system with JSON support (Task 1.3)
+- ✅ Logging and debug utilities (Task 1.4)
+- ✅ Command system with basic commands
+
+**In Progress:**
+- 🔄 AI Player entity implementation (Task 1.5)
+
+**Next Up:**
+- ⏳ Movement controller (Task 1.6)
+- ⏳ Perception system (Task 1.7)
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed progress and [ROADMAP.md](ROADMAP.md) for full task list.
 
 ## Documentation
 
@@ -32,6 +48,8 @@ We have completed comprehensive planning and architecture design. The project is
 
 ### Developer Guide
 - **[QUICK_START.md](QUICK_START.md)** - Development environment setup and configuration
+- **[BUILD.md](BUILD.md)** - Build instructions, testing, and troubleshooting
+- **[CHANGELOG.md](CHANGELOG.md)** - Detailed version history and progress tracking
 
 ## Key Features
 
