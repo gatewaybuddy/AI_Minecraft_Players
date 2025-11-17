@@ -23,14 +23,21 @@ This project implements an AI-powered Minecraft player that:
 - ✅ Project structure and build system (Task 1.2)
 - ✅ Configuration system with JSON support (Task 1.3)
 - ✅ Logging and debug utilities (Task 1.4)
-- ✅ Command system with basic commands
+- ✅ AI Player entity with spawn/despawn (Task 1.5)
+- ✅ Full command system with error handling
+
+**Current Features:**
+- Spawn AI players with `/aiplayer spawn [name]`
+- AI players appear in player list
+- Multiple simultaneous AI players supported
+- Despawn with `/aiplayer despawn <name>`
 
 **In Progress:**
-- 🔄 AI Player entity implementation (Task 1.5)
+- 🔄 Basic movement controller (Task 1.6 - Next)
 
 **Next Up:**
-- ⏳ Movement controller (Task 1.6)
 - ⏳ Perception system (Task 1.7)
+- ⏳ Command enhancements (Task 1.8)
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed progress and [ROADMAP.md](ROADMAP.md) for full task list.
 
