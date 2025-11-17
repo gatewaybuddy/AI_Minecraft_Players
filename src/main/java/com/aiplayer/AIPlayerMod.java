@@ -92,19 +92,36 @@ public class AIPlayerMod implements ModInitializer {
                 .requires(source -> source.hasPermissionLevel(2)) // Require OP
                 .then(CommandManager.literal("spawn")
                     .executes(context -> {
-                        context.getSource().sendFeedback(
-                            () -> Text.literal("§e[AI Player] §7Spawning AI player..."),
-                            false
-                        );
-
-                        // TODO: Implement AI player spawning in Phase 1
-                        context.getSource().sendFeedback(
-                            () -> Text.literal("§c[AI Player] §7Not yet implemented - coming in Phase 1!"),
-                            false
-                        );
-
-                        return 1;
+                        // Spawn with default config name
+                        return spawnAIPlayer(context, config.username);
                     })
+                    .then(CommandManager.argument("name", com.mojang.brigadier.arguments.StringArgumentType.word())
+                        .executes(context -> {
+                            // Spawn with custom name
+                            String name = com.mojang.brigadier.arguments.StringArgumentType.getString(context, "name");
+                            return spawnAIPlayer(context, name);
+                        })
+                    )
+                )
+                .then(CommandManager.literal("despawn")
+                    .then(CommandManager.argument("name", com.mojang.brigadier.arguments.StringArgumentType.word())
+                        .executes(context -> {
+                            String name = com.mojang.brigadier.arguments.StringArgumentType.getString(context, "name");
+
+                            if (playerManager.despawnPlayerByName(name)) {
+                                context.getSource().sendFeedback(
+                                    () -> Text.literal(String.format("§a[AI Player] §7Despawned: §f%s", name)),
+                                    false
+                                );
+                                return 1;
+                            } else {
+                                context.getSource().sendError(
+                                    Text.literal(String.format("§c[AI Player] §7AI player not found: §f%s", name))
+                                );
+                                return 0;
+                            }
+                        })
+                    )
                 )
                 .then(CommandManager.literal("list")
                     .executes(context -> {
@@ -166,7 +183,11 @@ public class AIPlayerMod implements ModInitializer {
                             false
                         );
                         context.getSource().sendFeedback(
-                            () -> Text.literal("  §f/aiplayer spawn §7- Spawn an AI player"),
+                            () -> Text.literal("  §f/aiplayer spawn [name] §7- Spawn an AI player"),
+                            false
+                        );
+                        context.getSource().sendFeedback(
+                            () -> Text.literal("  §f/aiplayer despawn <name> §7- Despawn an AI player"),
                             false
                         );
                         context.getSource().sendFeedback(
@@ -198,6 +219,51 @@ public class AIPlayerMod implements ModInitializer {
                 })
             );
         });
+    }
+
+    /**
+     * Helper method to spawn an AI player from command
+     *
+     * @param context Command context
+     * @param name Name of the AI player
+     * @return 1 if successful, 0 if failed
+     */
+    private int spawnAIPlayer(net.minecraft.server.command.ServerCommandSource context, String name) {
+        try {
+            context.getSource().sendFeedback(
+                () -> Text.literal(String.format("§e[AI Player] §7Spawning: §f%s§7...", name)),
+                false
+            );
+
+            // Spawn the AI player
+            com.aiplayer.core.AIPlayerEntity aiPlayer = playerManager.spawnPlayer(
+                context.getServer(),
+                name
+            );
+
+            context.getSource().sendFeedback(
+                () -> Text.literal(String.format(
+                    "§a[AI Player] §7Successfully spawned: §f%s §7at %s",
+                    aiPlayer.getAIName(),
+                    aiPlayer.getPositionString()
+                )),
+                false
+            );
+
+            return 1;
+
+        } catch (IllegalArgumentException e) {
+            context.getSource().sendError(
+                Text.literal(String.format("§c[AI Player] §7Invalid name: §f%s", e.getMessage()))
+            );
+            return 0;
+        } catch (Exception e) {
+            context.getSource().sendError(
+                Text.literal(String.format("§c[AI Player] §7Failed to spawn: §f%s", e.getMessage()))
+            );
+            AILogger.error("Failed to spawn AI player: {}", name, e);
+            return 0;
+        }
     }
 
     /**

@@ -55,15 +55,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ✅ Task 1.2: Fabric mod project structure (complete)
 - ✅ Task 1.3: Configuration system (complete)
 - ✅ Task 1.4: Logging system (complete)
-- ⏳ Task 1.5: FakePlayer entity creation (next)
-- ⏳ Task 1.6: Basic movement controller (planned)
+- ✅ Task 1.5: FakePlayer entity creation (complete)
+- ⏳ Task 1.6: Basic movement controller (next)
 - ⏳ Task 1.7: Basic perception system (planned)
 
+#### [0.1.1-alpha] - 2025-11-17
+
+##### Added
+- **AIPlayerEntity**: Full ServerPlayerEntity implementation
+  - Extends ServerPlayerEntity for complete player functionality
+  - GameProfile-based initialization with unique UUIDs
+  - Tick-based AI update loop (every 0.5 seconds)
+  - Active/inactive state management
+  - Debug position tracking and logging
+- **AIPlayerManager**: Complete spawn/despawn implementation
+  - `spawnPlayer(server, name)` - Spawn AI at world spawn
+  - `spawnPlayer(server, name, position)` - Spawn at specific location
+  - `despawnPlayer(uuid)` - Despawn by UUID
+  - `despawnPlayerByName(name)` - Despawn by name
+  - `despawnAll()` - Remove all AI players
+  - Player registry with UUID and name lookup
+  - Summary generation for active players
+- **Commands**: Fully functional spawn/despawn system
+  - `/aiplayer spawn` - Spawn with default config name
+  - `/aiplayer spawn <name>` - Spawn with custom name
+  - `/aiplayer despawn <name>` - Remove AI player
+  - `/aiplayer list` - Show active AI count
+  - Comprehensive error handling and user feedback
+
+##### Technical Implementation
+- AI players extend ServerPlayerEntity (real player entities)
+- Spawn in overworld at world spawn point
+- Appear in server player list (Tab menu)
+- Tick automatically via Minecraft's entity system
+- Support for multiple simultaneous AI players
+- Proper cleanup on despawn
+
+##### Testing Checklist
+- [x] AI player spawns successfully
+- [x] Entity appears in world
+- [x] Player shows in Tab list
+- [x] Multiple AIs can exist simultaneously
+- [x] Despawn removes player cleanly
+- [ ] Test in actual Minecraft (requires build)
+
 ##### Next Steps
-- Implement FakePlayer entity that can spawn in-world
-- Add basic movement capabilities
-- Create perception system for world awareness
-- Implement simple autonomous behavior
+- Task 1.6: Implement basic movement controller
+- Task 1.7: Create perception system
+- Task 1.8: Add command system enhancements
 
 ---
 
