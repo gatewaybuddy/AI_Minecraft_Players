@@ -1,5 +1,6 @@
 package com.aiplayer.core;
 
+import com.aiplayer.action.ActionController;
 import com.aiplayer.perception.WorldPerceptionEngine;
 import com.aiplayer.perception.WorldState;
 import com.mojang.authlib.GameProfile;
@@ -34,6 +35,7 @@ public class AIPlayerEntity extends ServerPlayerEntity {
     private final UUID aiPlayerId;
     private final AIPlayerBrain brain;
     private final WorldPerceptionEngine perceptionEngine;
+    private final ActionController actionController;
 
     // Movement state (Phase 1)
     private double aiMovementX = 0;
@@ -59,6 +61,7 @@ public class AIPlayerEntity extends ServerPlayerEntity {
         // Initialize AI components
         this.brain = new AIPlayerBrain(this);
         this.perceptionEngine = new WorldPerceptionEngine(this);
+        this.actionController = new ActionController(this, false); // PvP disabled by default
 
         // Set game mode to survival
         this.changeGameMode(GameMode.SURVIVAL);
@@ -90,6 +93,9 @@ public class AIPlayerEntity extends ServerPlayerEntity {
         try {
             // Perceive the world
             WorldState worldState = perceptionEngine.perceiveWorld();
+
+            // Update action controller (handles path following, etc.)
+            actionController.update();
 
             // Let the brain decide what to do
             brain.update(worldState);
@@ -166,6 +172,13 @@ public class AIPlayerEntity extends ServerPlayerEntity {
     }
 
     /**
+     * Get the AI player's action controller.
+     */
+    public ActionController getActionController() {
+        return actionController;
+    }
+
+    /**
      * Get the AI player's unique ID.
      */
     public UUID getAIPlayerId() {
@@ -187,6 +200,7 @@ public class AIPlayerEntity extends ServerPlayerEntity {
     public void cleanup() {
         LOGGER.info("Cleaning up AI player: {}", getName().getString());
         stopMovement();
+        actionController.stopAll();
     }
 
     /**
