@@ -1,15 +1,19 @@
 package com.aiplayer.core;
 
+import com.aiplayer.action.ActionController;
+import com.aiplayer.knowledge.WorldKnowledge;
 import com.aiplayer.llm.LLMProvider;
 import com.aiplayer.memory.Memory;
 import com.aiplayer.memory.MemorySystem;
 import com.aiplayer.perception.WorldState;
 import com.aiplayer.planning.Goal;
 import com.aiplayer.planning.PlanningEngine;
-import com.aiplayer.skills.SkillLibrary;
+import com.aiplayer.skills.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
@@ -21,11 +25,13 @@ import java.util.Random;
  * 2. Decide what to do based on goals and observations
  * 3. Execute actions through controllers
  *
- * Phase 3 Update: Now uses intelligent planning with:
- * - Memory system (episodic + semantic + working memory)
- * - LLM-based goal planning (ReAct framework)
- * - Skill library (learned behaviors)
- * - Goal-based decision making
+ * Phase 3: Intelligent planning with memory, LLM-based goals, and skill library
+ * Phase 4: Natural language communication and chat integration
+ * Phase 5: Advanced AI with self-improvement capabilities:
+ * - Skill generation from experiences (success and failure)
+ * - World knowledge tracking (landmarks, resources, dangers)
+ * - Experience-based learning and adaptation
+ * - Skill execution and refinement
  *
  * Falls back to simple random walk if LLM is unavailable.
  */
@@ -42,33 +48,62 @@ public class AIPlayerBrain {
     private final SkillLibrary skillLibrary;
     private final boolean intelligentMode;
 
+    // Phase 5: Advanced AI systems
+    private final SkillExecutor skillExecutor;
+    private final SkillGenerator skillGenerator;
+    private final ExperienceLearner experienceLearner;
+    private final WorldKnowledge worldKnowledge;
+
+    // Controllers (will be properly initialized when ActionController is available)
+    private final ActionController actionController;
+
     // Simple state for fallback mode
     private Vec3dSimple currentMovementTarget;
     private int ticksSinceLastDecision;
     private static final int DECISION_INTERVAL_TICKS = 20; // Decide every second
 
     /**
-     * Create AI brain with intelligent planning (Phase 3+).
+     * Create AI brain with intelligent planning (Phase 3+) and advanced AI (Phase 5).
      */
     public AIPlayerBrain(AIPlayerEntity player, LLMProvider llmProvider) {
         this.player = player;
         this.random = new Random();
         this.ticksSinceLastDecision = 0;
 
-        // Initialize intelligence systems
+        // Initialize Phase 3 intelligence systems
         this.memorySystem = new MemorySystem();
         this.skillLibrary = new SkillLibrary();
+
+        // Initialize action controller (placeholder for now)
+        this.actionController = null; // Will be properly initialized when available
 
         // Check if LLM is available
         if (llmProvider != null && llmProvider.isAvailable()) {
             this.planningEngine = new PlanningEngine(llmProvider, memorySystem);
             this.intelligentMode = true;
-            LOGGER.info("AI brain initialized in INTELLIGENT mode with {} ({}))",
+
+            // Initialize Phase 5 advanced AI systems (requires LLM)
+            this.skillExecutor = new SkillExecutor(player, actionController, memorySystem);
+            this.skillGenerator = new SkillGenerator(llmProvider, memorySystem, skillLibrary);
+            this.experienceLearner = new ExperienceLearner(
+                player, memorySystem, skillGenerator, skillLibrary, skillExecutor);
+            this.worldKnowledge = new WorldKnowledge(memorySystem);
+
+            LOGGER.info("AI brain initialized in INTELLIGENT mode with {} ({})",
                 llmProvider.getProviderName(), llmProvider.getModelName());
+            LOGGER.info("Phase 5 Advanced AI systems enabled: skill learning, world knowledge");
         } else {
             this.planningEngine = null;
             this.intelligentMode = false;
+
+            // Phase 5 systems disabled in simple mode
+            this.skillExecutor = null;
+            this.skillGenerator = null;
+            this.experienceLearner = null;
+            this.worldKnowledge = null;
+
             LOGGER.warn("AI brain initialized in SIMPLE mode (LLM unavailable)");
+            LOGGER.warn("Phase 5 Advanced AI features disabled");
         }
     }
 
@@ -101,11 +136,21 @@ public class AIPlayerBrain {
             // Store perception in memory
             storePerceptionMemories(worldState);
 
+            // Phase 5: Update world knowledge from observations
+            if (intelligentMode && worldKnowledge != null) {
+                updateWorldKnowledge(worldState);
+            }
+
             // Use intelligent planning if available, otherwise fall back to simple mode
             if (intelligentMode) {
                 makeIntelligentDecision(worldState);
             } else {
                 makeSimpleDecision(worldState);
+            }
+
+            // Phase 5: Process learning experiences periodically
+            if (intelligentMode && experienceLearner != null && ticksSinceLastDecision % 200 == 0) {
+                experienceLearner.processExperiences(worldState);
             }
 
             // Periodic memory cleanup
@@ -301,6 +346,35 @@ public class AIPlayerBrain {
                     0.7
                 ));
             });
+    }
+
+    /**
+     * Phase 5: Update world knowledge based on observations.
+     */
+    private void updateWorldKnowledge(WorldState worldState) {
+        if (worldKnowledge == null) {
+            return;
+        }
+
+        // Mark current region as explored
+        worldKnowledge.markExplored(
+            player.getBlockPos(),
+            16, // 16 block radius
+            worldState.getBiome()
+        );
+
+        // Discover resources (simplified - in full version, would scan for actual blocks)
+        // This is a placeholder for actual resource discovery logic
+
+        // Register danger zones if health is very low in current area
+        if (worldState.getHealth() < 4) {
+            worldKnowledge.registerDangerZone(
+                "Recently took damage here",
+                player.getBlockPos(),
+                10, // 10 block radius
+                0.7 // Moderate threat
+            );
+        }
     }
 
     /**
@@ -521,6 +595,34 @@ public class AIPlayerBrain {
      */
     public boolean isIntelligentMode() {
         return intelligentMode;
+    }
+
+    /**
+     * Phase 5: Get skill executor.
+     */
+    public SkillExecutor getSkillExecutor() {
+        return skillExecutor;
+    }
+
+    /**
+     * Phase 5: Get skill generator.
+     */
+    public SkillGenerator getSkillGenerator() {
+        return skillGenerator;
+    }
+
+    /**
+     * Phase 5: Get experience learner.
+     */
+    public ExperienceLearner getExperienceLearner() {
+        return experienceLearner;
+    }
+
+    /**
+     * Phase 5: Get world knowledge.
+     */
+    public WorldKnowledge getWorldKnowledge() {
+        return worldKnowledge;
     }
 
     /**
