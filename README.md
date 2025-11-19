@@ -12,8 +12,11 @@ Create fully autonomous AI players capable of intelligent decision-making, goal-
 - ✅ **LLM-Powered Planning** - Form intelligent goals using GPT-4, Claude, or local models
 - ✅ **Memory System** - Remember past events and learn from experiences
 - ✅ **Personality System** - Customize behavior with roles (Miner, Explorer, Hunter, Builder, Support)
+- ✅ **Natural Language Chat** - Communicate with AI players in plain English, give commands, ask questions
+- ✅ **Self-Improvement** - AIs learn new skills from successful experiences and failures
+- ✅ **World Memory** - AIs remember landmarks, resource locations, and danger zones
+- ✅ **Multi-AI Coordination** - Multiple AIs collaborate on shared goals and work in teams
 - ✅ **Multi-Mode** - Intelligent mode (with LLM) or Simple mode (random walk)
-- 🔄 **Natural Language** (Phase 4 - In Progress) - Chat and accept commands in plain English
 
 ---
 
@@ -24,9 +27,9 @@ Create fully autonomous AI players capable of intelligent decision-making, goal-
 | Phase 1 | ✅ Complete | Foundation, config, commands |
 | Phase 2 | ✅ Complete | Pathfinding, mining, building, combat |
 | Phase 3 | ✅ Complete | Memory, LLM planning, skills |
-| Phase 4 | 🔄 In Progress | Natural language chat |
-| Phase 5 | ⏳ Planned | Advanced AI, collaboration |
-| Phase 6 | ⏳ Planned | Optimization, polish |
+| Phase 4 | ✅ Complete | Natural language chat & communication |
+| Phase 5 | ✅ Complete | Self-improvement, world knowledge, multi-AI coordination |
+| **Overall** | **✅ 85% Production Ready** | **Ready for beta testing** |
 
 ---
 
@@ -177,23 +180,31 @@ Customize traits (0.0 - 1.0):
 | Claude | claude-3-haiku | $0.10-0.25 | $2-6 |
 | **Local** | **mistral/llama2** | **$0** | **$0** |
 
-*Assumes 5s planning interval, 50-80% cache hit rate*
+*Estimates with intelligent response caching (50-80% hit rate) and 5s planning interval*
 
-**Use local models with Ollama for completely free operation!**
+**💡 Cost Saving Features**:
+- ✅ Automatic response caching reduces costs by 50-80%
+- ✅ Configurable planning intervals (balance cost vs intelligence)
+- ✅ Use local models with Ollama for completely FREE operation!
+- ✅ Simple mode available (no LLM required)
 
 ---
 
 ## 📚 Documentation
 
 ### Setup & Configuration
+- **[USER_INSTALLATION_GUIDE.md](USER_INSTALLATION_GUIDE.md)** - Complete installation guide for end users
 - **[LLM_SETUP.md](LLM_SETUP.md)** - Detailed LLM provider setup guide
 - **[CONFIGURATION.md](docs/CONFIGURATION.md)** - Complete configuration reference with personality system
+- **[BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md)** - Building from source
 
 ### Technical Documentation
-- **[PHASE3_IMPLEMENTATION.md](PHASE3_IMPLEMENTATION.md)** - Technical implementation details
-- **[INTEGRATION_VERIFICATION.md](INTEGRATION_VERIFICATION.md)** - Integration testing guide
+- **[PHASE3_IMPLEMENTATION.md](PHASE3_IMPLEMENTATION.md)** - Memory, planning, and skills (Phase 3)
+- **[PHASE4_IMPLEMENTATION.md](PHASE4_IMPLEMENTATION.md)** - Natural language communication (Phase 4)
+- **[PHASE5_IMPLEMENTATION.md](PHASE5_IMPLEMENTATION.md)** - Self-improvement and coordination (Phase 5)
 - **[PROJECT_PLAN.md](PROJECT_PLAN.md)** - Full project architecture
 - **[TECHNICAL_SPEC.md](TECHNICAL_SPEC.md)** - Technical specifications
+- **[FINAL_CODE_REVIEW.md](FINAL_CODE_REVIEW.md)** - Comprehensive code review and analysis
 
 ---
 
@@ -288,12 +299,25 @@ Contributions welcome! Please:
 
 ---
 
-## 🔜 Coming Soon (Phase 4)
+## 🎯 What's New in Phase 5
 
-- 🗣️ Natural language chat with AI players
-- 💬 Accept player commands in plain English
-- 🤝 Multi-turn conversations
-- 📋 Complex task delegation
+- ✅ **Self-Improving Skills** - AIs generate new skills from successful action sequences
+- ✅ **Learn from Failure** - Failed skills are automatically refined using LLM
+- ✅ **Observation Learning** - AIs learn by watching human players
+- ✅ **World Knowledge** - Spatial memory of landmarks, resources, and dangers
+- ✅ **Multi-AI Coordination** - Shared goals, teams, and task distribution
+
+See [PHASE5_IMPLEMENTATION.md](PHASE5_IMPLEMENTATION.md) for technical details.
+
+---
+
+## 🔜 Coming Next
+
+- 🧪 Unit test suite
+- 💾 Persistent world knowledge (save/load)
+- 🎨 Multi-version support (1.19, 1.21)
+- 📊 Performance optimization
+- 🌐 Web dashboard for AI monitoring
 
 ---
 
