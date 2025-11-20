@@ -14,6 +14,9 @@ Create fully autonomous AI players capable of intelligent decision-making, goal-
 - ✅ **Personality System** - Customize behavior with roles (Miner, Explorer, Hunter, Builder, Support)
 - ✅ **Multi-Mode** - Intelligent mode (with LLM) or Simple mode (random walk)
 - ✅ **Natural Language** - Chat and accept commands in plain English
+- ✅ **Skill Generation** - LLM creates custom skills for any goal
+- ✅ **Experience Learning** - Learn patterns from successes and failures
+- ✅ **World Knowledge** - Remember landmarks, resources, and explored areas
 
 ---
 
@@ -25,7 +28,7 @@ Create fully autonomous AI players capable of intelligent decision-making, goal-
 | Phase 2 | ✅ Complete | Pathfinding, mining, building, combat |
 | Phase 3 | ✅ Complete | Memory, LLM planning, skills |
 | Phase 4 | ✅ Complete | Natural language chat |
-| Phase 5 | ⏳ Planned | Advanced AI, collaboration |
+| Phase 5 | ✅ Complete | Skill generation, learning, world knowledge |
 | Phase 6 | ⏳ Planned | Optimization, polish |
 
 ---
@@ -192,6 +195,7 @@ Customize traits (0.0 - 1.0):
 ### Technical Documentation
 - **[PHASE3_IMPLEMENTATION.md](PHASE3_IMPLEMENTATION.md)** - Memory & planning system details
 - **[PHASE4_IMPLEMENTATION.md](PHASE4_IMPLEMENTATION.md)** - Natural language communication details
+- **[PHASE5_IMPLEMENTATION.md](PHASE5_IMPLEMENTATION.md)** - Skill generation, learning & world knowledge
 - **[INTEGRATION_VERIFICATION.md](INTEGRATION_VERIFICATION.md)** - Integration testing guide
 - **[PROJECT_PLAN.md](PROJECT_PLAN.md)** - Full project architecture
 - **[TECHNICAL_SPEC.md](TECHNICAL_SPEC.md)** - Technical specifications
@@ -289,13 +293,13 @@ Contributions welcome! Please:
 
 ---
 
-## 🔜 Coming Soon (Phase 5)
+## 🔜 Coming Soon (Phase 6)
 
-- 🤖 LLM-generated skills (AI writes its own code!)
-- 🧠 Experience-based learning and adaptation
+- 💾 Skill and world knowledge persistence
+- ⚡ Performance optimization
 - 👥 Multi-AI collaboration and coordination
-- 🗺️ World knowledge acquisition and landmark memory
-- 🤝 Player relationship system with trust tracking
+- 🎨 Advanced skill composition
+- 🔧 Debugging and visualization tools
 
 ---
 
