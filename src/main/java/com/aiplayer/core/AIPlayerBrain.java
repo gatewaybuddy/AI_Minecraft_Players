@@ -1,6 +1,8 @@
 package com.aiplayer.core;
 
 import com.aiplayer.communication.CommunicationSystem;
+import com.aiplayer.learning.LearningSystem;
+import com.aiplayer.learning.WorldKnowledge;
 import com.aiplayer.llm.LLMProvider;
 import com.aiplayer.memory.Memory;
 import com.aiplayer.memory.MemorySystem;
@@ -34,6 +36,11 @@ import java.util.Random;
  * - LLM-powered response generation
  * - Task request handling
  *
+ * Phase 5 Update: Advanced AI features:
+ * - LLM-generated and refined skills
+ * - Experience-based learning
+ * - World knowledge acquisition
+ *
  * Falls back to simple random walk if LLM is unavailable.
  */
 public class AIPlayerBrain {
@@ -52,27 +59,39 @@ public class AIPlayerBrain {
     // Phase 4: Communication system
     private final CommunicationSystem communicationSystem;
 
+    // Phase 5: Learning and world knowledge
+    private final LearningSystem learningSystem;
+    private final WorldKnowledge worldKnowledge;
+
     // Simple state for fallback mode
     private Vec3dSimple currentMovementTarget;
     private int ticksSinceLastDecision;
     private static final int DECISION_INTERVAL_TICKS = 20; // Decide every second
 
     /**
-     * Create AI brain with intelligent planning (Phase 3+) and communication (Phase 4+).
+     * Create AI brain with intelligent planning (Phase 3+), communication (Phase 4+), and learning (Phase 5+).
      */
     public AIPlayerBrain(AIPlayerEntity player, LLMProvider llmProvider) {
         this.player = player;
         this.random = new Random();
         this.ticksSinceLastDecision = 0;
 
-        // Initialize intelligence systems
+        // Initialize intelligence systems (Phase 3)
         this.memorySystem = new MemorySystem();
         this.skillLibrary = new SkillLibrary();
+
+        // Initialize learning and world knowledge (Phase 5)
+        this.learningSystem = new LearningSystem(memorySystem);
+        this.worldKnowledge = new WorldKnowledge();
 
         // Check if LLM is available
         if (llmProvider != null && llmProvider.isAvailable()) {
             this.planningEngine = new PlanningEngine(llmProvider, memorySystem);
             this.intelligentMode = true;
+
+            // Enable skill generation (Phase 5)
+            this.skillLibrary.setLLMProvider(llmProvider);
+
             LOGGER.info("AI brain initialized in INTELLIGENT mode with {} ({})",
                 llmProvider.getProviderName(), llmProvider.getModelName());
         } else {
@@ -433,6 +452,20 @@ public class AIPlayerBrain {
      */
     public CommunicationSystem getCommunicationSystem() {
         return communicationSystem;
+    }
+
+    /**
+     * Get learning system (Phase 5).
+     */
+    public LearningSystem getLearningSystem() {
+        return learningSystem;
+    }
+
+    /**
+     * Get world knowledge (Phase 5).
+     */
+    public WorldKnowledge getWorldKnowledge() {
+        return worldKnowledge;
     }
 
     /**
