@@ -1,0 +1,53 @@
+{
+  "_comment": "AI Minecraft Player Configuration - Phase 3+",
+  "_readme": "See README.md for full documentation and examples",
+
+  "username": "AISteve",
+  "personality": {
+    "description": "helpful and curious explorer",
+    "role": "balanced",
+    "traits": {
+      "aggression": 0.3,
+      "curiosity": 0.8,
+      "caution": 0.6,
+      "sociability": 0.7,
+      "independence": 0.5
+    },
+    "preferences": {
+      "mining": 0.5,
+      "building": 0.5,
+      "exploration": 0.8,
+      "combat": 0.3,
+      "farming": 0.4,
+      "trading": 0.6
+    }
+  },
+
+  "llm": {
+    "provider": "openai",
+    "model": "gpt-4-turbo",
+    "apiKey": "",
+    "localModelUrl": "http://localhost:11434",
+    "maxTokens": 1500,
+    "temperature": 0.7
+  },
+  "behavior": {
+    "reactionTimeMs": 200,
+    "movementHumanization": true,
+    "chatEnabled": true,
+    "autoRespawn": true,
+    "actionCacheSize": 100
+  },
+  "goals": {
+    "defaultGoal": "explore and gather resources",
+    "acceptPlayerRequests": true,
+    "maxActiveGoals": 3,
+    "autonomousGoalGeneration": true
+  },
+  "memory": {
+    "storageType": "json",
+    "maxEpisodicMemories": 1000,
+    "enableSemanticSearch": false,
+    "vectorDbUrl": ""
+  }
+}

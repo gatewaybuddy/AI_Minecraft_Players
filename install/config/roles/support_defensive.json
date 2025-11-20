@@ -1,0 +1,39 @@
+{
+  "_role": "Defensive Support - Protects players and base, reactive combat style",
+
+  "username": "AIGuardian",
+  "personality": {
+    "description": "protective guardian who defends allies and provides support",
+    "role": "support_defensive",
+    "traits": {
+      "aggression": 0.4,
+      "curiosity": 0.4,
+      "caution": 0.9,
+      "sociability": 0.9,
+      "independence": 0.3
+    },
+    "preferences": {
+      "mining": 0.3,
+      "building": 0.7,
+      "exploration": 0.3,
+      "combat": 0.6,
+      "farming": 0.5,
+      "trading": 0.6
+    }
+  },
+
+  "goals": {
+    "defaultGoal": "protect players and maintain base defenses",
+    "acceptPlayerRequests": true,
+    "maxActiveGoals": 3,
+    "autonomousGoalGeneration": false
+  },
+
+  "behavior": {
+    "reactionTimeMs": 180,
+    "movementHumanization": true,
+    "chatEnabled": true,
+    "autoRespawn": true,
+    "actionCacheSize": 120
+  }
+}

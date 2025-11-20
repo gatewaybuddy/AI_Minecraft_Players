@@ -1,0 +1,175 @@
+AI MINECRAFT PLAYERS - INSTALLATION PACKAGE MANIFEST
+====================================================
+
+This file lists all files that should be included in the installation package.
+
+REQUIRED FILES:
+--------------
+
+1. ai-minecraft-player-0.1.0-SNAPSHOT.jar
+   Source: build/libs/ai-minecraft-player-0.1.0-SNAPSHOT.jar
+   Description: The compiled mod file
+   Note: Built from source using: gradle build
+
+2. README.txt
+   Source: install/README.txt
+   Description: Quick start guide and basic instructions
+
+3. quick-install.sh
+   Source: install/quick-install.sh
+   Description: Automated installation script for Linux/Mac
+   Permissions: Must be executable (chmod +x)
+
+CONFIG FILES:
+-------------
+
+4. config/aiplayer-config.json
+   Source: src/main/resources/data/aiplayer/config/default.json
+   Description: Default configuration file with all settings
+
+5. config/roles/*.json
+   Source: src/main/resources/data/aiplayer/config/roles/
+   Files:
+     - miner.json
+     - adventurer.json
+     - hunter_aggressive.json
+     - builder.json
+     - support_defensive.json
+   Description: Pre-made personality configurations
+
+DOCUMENTATION:
+--------------
+
+6. docs/README.md
+   Source: README.md
+   Description: Main project documentation
+
+7. docs/INSTALL.md
+   Source: INSTALL.md
+   Description: Detailed installation and deployment guide
+
+8. docs/BUILD.md
+   Source: BUILD.md
+   Description: Instructions for building from source
+
+9. docs/LLM_SETUP.md
+   Source: LLM_SETUP.md
+   Description: Detailed LLM provider configuration
+
+OPTIONAL FILES:
+---------------
+
+10. LICENSE
+    Source: LICENSE
+    Description: MIT License text
+
+11. CHANGELOG.md
+    Source: CHANGELOG.md
+    Description: Version history and changes
+
+DIRECTORY STRUCTURE:
+--------------------
+
+install/
+├── README.txt
+├── MANIFEST.txt (this file)
+├── quick-install.sh
+├── ai-minecraft-player-0.1.0-SNAPSHOT.jar (from build)
+├── config/
+│   ├── aiplayer-config.json
+│   └── roles/
+│       ├── miner.json
+│       ├── adventurer.json
+│       ├── hunter_aggressive.json
+│       ├── builder.json
+│       └── support_defensive.json
+└── docs/
+    ├── README.md
+    ├── INSTALL.md
+    ├── BUILD.md
+    └── LLM_SETUP.md
+
+PACKAGE CREATION:
+-----------------
+
+To create the installation package:
+
+1. Build the mod:
+   gradle clean build
+
+2. Copy JAR to install directory:
+   cp build/libs/ai-minecraft-player-*.jar install/
+
+3. Verify all files are present:
+   ls -R install/
+
+4. Create archive:
+   cd install/
+   zip -r ../ai-minecraft-player-install.zip *
+   # Or:
+   tar -czf ../ai-minecraft-player-install.tar.gz *
+
+5. Test installation:
+   - Extract package in a test location
+   - Run quick-install.sh
+   - Verify all files copied correctly
+
+RELEASE CHECKLIST:
+------------------
+
+□ Build passes without errors
+□ All tests pass
+□ Version number updated in gradle.properties
+□ CHANGELOG.md updated
+□ All documentation reviewed and updated
+□ JAR file included in package
+□ All config files present
+□ quick-install.sh is executable
+□ Package tested on clean server
+□ File sizes reasonable (< 10MB total)
+
+SIZE ESTIMATES:
+---------------
+
+JAR file:              ~1-2 MB
+Config files:          ~10 KB
+Documentation:         ~50 KB
+Total package size:    ~2 MB (uncompressed)
+                       ~500 KB (compressed)
+
+DISTRIBUTION:
+-------------
+
+Recommended distribution methods:
+1. GitHub Releases (primary)
+2. CurseForge/Modrinth (mod platforms)
+3. Direct download from project website
+
+VERSIONING:
+-----------
+
+Package name format: ai-minecraft-player-install-v{VERSION}.zip
+
+Examples:
+  - ai-minecraft-player-install-v0.1.0.zip
+  - ai-minecraft-player-install-v0.2.0-beta.zip
+  - ai-minecraft-player-install-v1.0.0.zip
+
+CHECKSUM:
+---------
+
+Always provide checksums for downloads:
+
+  sha256sum ai-minecraft-player-install.zip > checksums.txt
+
+Include checksums.txt with release.
+
+NOTES:
+------
+
+- Config file apiKey should be EMPTY in releases (security)
+- Documentation should match the version being released
+- Test installation on clean server before releasing
+- Provide upgrade instructions in INSTALL.md for existing users
+
+END OF MANIFEST
