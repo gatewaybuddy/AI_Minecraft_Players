@@ -39,10 +39,16 @@ public class SkillLibrary {
     // Phase 5: Skill generation
     private SkillGenerator skillGenerator;
 
+    // Phase 6: Persistence
+    private SkillPersistence skillPersistence;
+    private UUID ownerUUID; // AI player UUID for saving/loading
+
     public SkillLibrary() {
         this.skills = new HashMap<>();
         this.skillsByCategory = new EnumMap<>(Skill.SkillCategory.class);
         this.skillGenerator = null; // Set when LLM provider is available
+        this.skillPersistence = new SkillPersistence();
+        this.ownerUUID = null;
 
         // Initialize category indices
         for (Skill.SkillCategory category : Skill.SkillCategory.values()) {
@@ -51,6 +57,56 @@ public class SkillLibrary {
 
         // Initialize with basic skills
         initializeBasicSkills();
+    }
+
+    /**
+     * Set owner UUID for persistence (Phase 6).
+     *
+     * @param uuid The AI player's UUID
+     */
+    public void setOwnerUUID(UUID uuid) {
+        this.ownerUUID = uuid;
+
+        // Auto-load skills if they exist
+        if (uuid != null && skillPersistence.skillsExist(uuid)) {
+            loadSkillsFromDisk();
+        }
+    }
+
+    /**
+     * Save skills to disk (Phase 6).
+     *
+     * @return true if successful
+     */
+    public boolean saveSkillsToDisk() {
+        if (ownerUUID == null) {
+            LOGGER.warn("Cannot save skills - owner UUID not set");
+            return false;
+        }
+
+        return skillPersistence.saveSkills(ownerUUID, getAllSkills());
+    }
+
+    /**
+     * Load skills from disk (Phase 6).
+     *
+     * @return true if successful
+     */
+    public boolean loadSkillsFromDisk() {
+        if (ownerUUID == null) {
+            LOGGER.warn("Cannot load skills - owner UUID not set");
+            return false;
+        }
+
+        List<Skill> loadedSkills = skillPersistence.loadSkills(ownerUUID);
+        for (Skill skill : loadedSkills) {
+            // Only add if not already present
+            if (!skills.containsKey(skill.getId())) {
+                addSkill(skill);
+            }
+        }
+
+        return !loadedSkills.isEmpty();
     }
 
     /**

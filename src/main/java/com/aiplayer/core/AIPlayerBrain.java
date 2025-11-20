@@ -3,6 +3,7 @@ package com.aiplayer.core;
 import com.aiplayer.communication.CommunicationSystem;
 import com.aiplayer.learning.LearningSystem;
 import com.aiplayer.learning.WorldKnowledge;
+import com.aiplayer.learning.WorldKnowledgePersistence;
 import com.aiplayer.llm.LLMProvider;
 import com.aiplayer.memory.Memory;
 import com.aiplayer.memory.MemorySystem;
@@ -10,6 +11,7 @@ import com.aiplayer.perception.WorldState;
 import com.aiplayer.planning.Goal;
 import com.aiplayer.planning.PlanningEngine;
 import com.aiplayer.skills.SkillLibrary;
+import com.aiplayer.util.PerformanceMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +43,12 @@ import java.util.Random;
  * - Experience-based learning
  * - World knowledge acquisition
  *
+ * Phase 6 Update: Optimization & Polish:
+ * - Skill and world knowledge persistence
+ * - Performance monitoring
+ * - Memory optimization
+ * - Auto-save functionality
+ *
  * Falls back to simple random walk if LLM is unavailable.
  */
 public class AIPlayerBrain {
@@ -63,13 +71,19 @@ public class AIPlayerBrain {
     private final LearningSystem learningSystem;
     private final WorldKnowledge worldKnowledge;
 
+    // Phase 6: Persistence and performance
+    private final WorldKnowledgePersistence worldKnowledgePersistence;
+    private final PerformanceMonitor perfMonitor;
+    private int ticksSinceLastSave = 0;
+    private static final int AUTO_SAVE_INTERVAL_TICKS = 12000; // Save every 10 minutes
+
     // Simple state for fallback mode
     private Vec3dSimple currentMovementTarget;
     private int ticksSinceLastDecision;
     private static final int DECISION_INTERVAL_TICKS = 20; // Decide every second
 
     /**
-     * Create AI brain with intelligent planning (Phase 3+), communication (Phase 4+), and learning (Phase 5+).
+     * Create AI brain with intelligent planning (Phase 3+), communication (Phase 4+), learning (Phase 5+), and persistence (Phase 6+).
      */
     public AIPlayerBrain(AIPlayerEntity player, LLMProvider llmProvider) {
         this.player = player;
@@ -83,6 +97,16 @@ public class AIPlayerBrain {
         // Initialize learning and world knowledge (Phase 5)
         this.learningSystem = new LearningSystem(memorySystem);
         this.worldKnowledge = new WorldKnowledge();
+
+        // Initialize persistence and monitoring (Phase 6)
+        this.worldKnowledgePersistence = new WorldKnowledgePersistence();
+        this.perfMonitor = PerformanceMonitor.getInstance();
+
+        // Set up persistence with player UUID
+        this.skillLibrary.setOwnerUUID(player.getUuid());
+
+        // Load saved world knowledge
+        worldKnowledgePersistence.loadWorldKnowledge(player.getUuid(), worldKnowledge);
 
         // Check if LLM is available
         if (llmProvider != null && llmProvider.isAvailable()) {
@@ -117,16 +141,19 @@ public class AIPlayerBrain {
      * @param worldState Current perception of the world
      */
     public void update(WorldState worldState) {
-        ticksSinceLastDecision++;
-
-        // Only make decisions periodically to reduce CPU usage
-        if (ticksSinceLastDecision < DECISION_INTERVAL_TICKS) {
-            return;
-        }
-
-        ticksSinceLastDecision = 0;
+        long startTime = perfMonitor.startOperation("brain_update");
 
         try {
+            ticksSinceLastDecision++;
+            ticksSinceLastSave++;
+
+            // Only make decisions periodically to reduce CPU usage
+            if (ticksSinceLastDecision < DECISION_INTERVAL_TICKS) {
+                return;
+            }
+
+            ticksSinceLastDecision = 0;
+
             // Store perception in memory
             storePerceptionMemories(worldState);
 
@@ -140,9 +167,35 @@ public class AIPlayerBrain {
             // Periodic memory cleanup
             if (ticksSinceLastDecision % 1200 == 0) { // Every minute
                 memorySystem.cleanup();
+                learningSystem.cleanupOldExperiences(24 * 60 * 60 * 1000); // Keep 24 hours
             }
+
+            // Auto-save (Phase 6)
+            if (ticksSinceLastSave >= AUTO_SAVE_INTERVAL_TICKS) {
+                autoSave();
+                ticksSinceLastSave = 0;
+            }
+
         } catch (Exception e) {
             LOGGER.error("Error in AI brain update for {}", player.getName().getString(), e);
+        } finally {
+            perfMonitor.endOperation("brain_update", startTime);
+        }
+    }
+
+    /**
+     * Auto-save skills and world knowledge (Phase 6).
+     */
+    private void autoSave() {
+        long startTime = perfMonitor.startOperation("auto_save");
+        try {
+            skillLibrary.saveSkillsToDisk();
+            worldKnowledgePersistence.saveWorldKnowledge(player.getUuid(), worldKnowledge);
+            LOGGER.debug("Auto-saved skills and world knowledge for {}", player.getName().getString());
+        } catch (Exception e) {
+            LOGGER.error("Error during auto-save", e);
+        } finally {
+            perfMonitor.endOperation("auto_save", startTime);
         }
     }
 
