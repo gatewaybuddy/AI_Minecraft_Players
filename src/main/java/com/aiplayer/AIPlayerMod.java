@@ -2,10 +2,12 @@ package com.aiplayer;
 
 import com.aiplayer.command.AIPlayerCommand;
 import com.aiplayer.config.AIPlayerConfig;
+import com.aiplayer.core.AIPlayerEntity;
 import com.aiplayer.core.AIPlayerManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +105,26 @@ public class AIPlayerMod implements ModInitializer {
             }
         });
 
-        LOGGER.info("Registered event listeners");
+        // Register chat message listener (Phase 4: Natural Language Communication)
+        ServerMessageEvents.CHAT_MESSAGE.register((message, sender, params) -> {
+            if (playerManager != null) {
+                String messageText = message.getContent().getString();
+
+                // Route message to all AI players for processing
+                for (AIPlayerEntity aiPlayer : playerManager.getAllPlayers()) {
+                    if (aiPlayer.getBrain() != null &&
+                        aiPlayer.getBrain().getCommunicationSystem() != null &&
+                        aiPlayer.getBrain().getCommunicationSystem().isEnabled()) {
+
+                        // Let the communication system handle the message
+                        aiPlayer.getBrain().getCommunicationSystem()
+                            .onChatMessage(sender, messageText);
+                    }
+                }
+            }
+        });
+
+        LOGGER.info("Registered event listeners (including chat for Phase 4 communication)");
     }
 
     /**
