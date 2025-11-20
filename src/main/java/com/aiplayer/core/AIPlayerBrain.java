@@ -1,5 +1,6 @@
 package com.aiplayer.core;
 
+import com.aiplayer.communication.CommunicationSystem;
 import com.aiplayer.llm.LLMProvider;
 import com.aiplayer.memory.Memory;
 import com.aiplayer.memory.MemorySystem;
@@ -27,6 +28,12 @@ import java.util.Random;
  * - Skill library (learned behaviors)
  * - Goal-based decision making
  *
+ * Phase 4 Update: Natural language communication with:
+ * - Chat listener and dialogue manager
+ * - Natural language understanding
+ * - LLM-powered response generation
+ * - Task request handling
+ *
  * Falls back to simple random walk if LLM is unavailable.
  */
 public class AIPlayerBrain {
@@ -42,13 +49,16 @@ public class AIPlayerBrain {
     private final SkillLibrary skillLibrary;
     private final boolean intelligentMode;
 
+    // Phase 4: Communication system
+    private final CommunicationSystem communicationSystem;
+
     // Simple state for fallback mode
     private Vec3dSimple currentMovementTarget;
     private int ticksSinceLastDecision;
     private static final int DECISION_INTERVAL_TICKS = 20; // Decide every second
 
     /**
-     * Create AI brain with intelligent planning (Phase 3+).
+     * Create AI brain with intelligent planning (Phase 3+) and communication (Phase 4+).
      */
     public AIPlayerBrain(AIPlayerEntity player, LLMProvider llmProvider) {
         this.player = player;
@@ -63,13 +73,16 @@ public class AIPlayerBrain {
         if (llmProvider != null && llmProvider.isAvailable()) {
             this.planningEngine = new PlanningEngine(llmProvider, memorySystem);
             this.intelligentMode = true;
-            LOGGER.info("AI brain initialized in INTELLIGENT mode with {} ({}))",
+            LOGGER.info("AI brain initialized in INTELLIGENT mode with {} ({})",
                 llmProvider.getProviderName(), llmProvider.getModelName());
         } else {
             this.planningEngine = null;
             this.intelligentMode = false;
             LOGGER.warn("AI brain initialized in SIMPLE mode (LLM unavailable)");
         }
+
+        // Initialize communication system (Phase 4)
+        this.communicationSystem = new CommunicationSystem(player, llmProvider);
     }
 
     /**
@@ -413,6 +426,13 @@ public class AIPlayerBrain {
      */
     public boolean isIntelligentMode() {
         return intelligentMode;
+    }
+
+    /**
+     * Get communication system (Phase 4).
+     */
+    public CommunicationSystem getCommunicationSystem() {
+        return communicationSystem;
     }
 
     /**
