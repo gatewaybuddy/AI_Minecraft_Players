@@ -1,9 +1,13 @@
 package com.aiplayer.skills;
 
+import com.aiplayer.llm.LLMProvider;
+import com.aiplayer.perception.WorldState;
+import com.aiplayer.planning.Goal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -32,9 +36,13 @@ public class SkillLibrary {
     private final Map<UUID, Skill> skills;
     private final Map<Skill.SkillCategory, List<Skill>> skillsByCategory;
 
+    // Phase 5: Skill generation
+    private SkillGenerator skillGenerator;
+
     public SkillLibrary() {
         this.skills = new HashMap<>();
         this.skillsByCategory = new EnumMap<>(Skill.SkillCategory.class);
+        this.skillGenerator = null; // Set when LLM provider is available
 
         // Initialize category indices
         for (Skill.SkillCategory category : Skill.SkillCategory.values()) {
@@ -43,6 +51,70 @@ public class SkillLibrary {
 
         // Initialize with basic skills
         initializeBasicSkills();
+    }
+
+    /**
+     * Set LLM provider for skill generation (Phase 5).
+     */
+    public void setLLMProvider(LLMProvider llmProvider) {
+        if (llmProvider != null && llmProvider.isAvailable()) {
+            this.skillGenerator = new SkillGenerator(llmProvider);
+            LOGGER.info("Skill generation enabled with LLM provider");
+        }
+    }
+
+    /**
+     * Generate a new skill for a goal (Phase 5).
+     *
+     * @param goal The goal to achieve
+     * @param worldState Current world state
+     * @return Future containing the generated skill
+     */
+    public CompletableFuture<Skill> generateSkillForGoal(Goal goal, WorldState worldState) {
+        if (skillGenerator == null) {
+            return CompletableFuture.failedFuture(
+                new IllegalStateException("Skill generation not enabled - no LLM provider")
+            );
+        }
+
+        // Check if similar skill already exists
+        List<Skill> relevantSkills = findRelevantSkills(goal.getDescription(), 3);
+        int attempts = relevantSkills.isEmpty() ? 0 : relevantSkills.size();
+
+        return skillGenerator.generateSkill(goal, worldState, attempts)
+            .thenApply(skill -> {
+                addSkill(skill);
+                return skill;
+            });
+    }
+
+    /**
+     * Refine a skill based on failure (Phase 5).
+     *
+     * @param skill The skill that failed
+     * @param failureReason Why it failed
+     * @param worldState Current world state
+     * @return Future containing refined skill
+     */
+    public CompletableFuture<Skill> refineSkill(Skill skill, String failureReason, WorldState worldState) {
+        if (skillGenerator == null) {
+            return CompletableFuture.completedFuture(skill);
+        }
+
+        return skillGenerator.refineSkill(skill, failureReason, worldState)
+            .thenApply(refinedSkill -> {
+                // Replace old skill with refined version
+                removeSkill(skill.getId());
+                addSkill(refinedSkill);
+                return refinedSkill;
+            });
+    }
+
+    /**
+     * Check if skill generation is enabled.
+     */
+    public boolean isSkillGenerationEnabled() {
+        return skillGenerator != null;
     }
 
     /**
