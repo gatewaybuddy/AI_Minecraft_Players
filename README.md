@@ -13,7 +13,7 @@ Create fully autonomous AI players capable of intelligent decision-making, goal-
 - ✅ **Memory System** - Remember past events and learn from experiences
 - ✅ **Personality System** - Customize behavior with roles (Miner, Explorer, Hunter, Builder, Support)
 - ✅ **Multi-Mode** - Intelligent mode (with LLM) or Simple mode (random walk)
-- 🔄 **Natural Language** (Phase 4 - In Progress) - Chat and accept commands in plain English
+- ✅ **Natural Language** - Chat and accept commands in plain English
 
 ---
 
@@ -24,7 +24,7 @@ Create fully autonomous AI players capable of intelligent decision-making, goal-
 | Phase 1 | ✅ Complete | Foundation, config, commands |
 | Phase 2 | ✅ Complete | Pathfinding, mining, building, combat |
 | Phase 3 | ✅ Complete | Memory, LLM planning, skills |
-| Phase 4 | 🔄 In Progress | Natural language chat |
+| Phase 4 | ✅ Complete | Natural language chat |
 | Phase 5 | ⏳ Planned | Advanced AI, collaboration |
 | Phase 6 | ⏳ Planned | Optimization, polish |
 
@@ -190,7 +190,8 @@ Customize traits (0.0 - 1.0):
 - **[CONFIGURATION.md](docs/CONFIGURATION.md)** - Complete configuration reference with personality system
 
 ### Technical Documentation
-- **[PHASE3_IMPLEMENTATION.md](PHASE3_IMPLEMENTATION.md)** - Technical implementation details
+- **[PHASE3_IMPLEMENTATION.md](PHASE3_IMPLEMENTATION.md)** - Memory & planning system details
+- **[PHASE4_IMPLEMENTATION.md](PHASE4_IMPLEMENTATION.md)** - Natural language communication details
 - **[INTEGRATION_VERIFICATION.md](INTEGRATION_VERIFICATION.md)** - Integration testing guide
 - **[PROJECT_PLAN.md](PROJECT_PLAN.md)** - Full project architecture
 - **[TECHNICAL_SPEC.md](TECHNICAL_SPEC.md)** - Technical specifications
@@ -288,12 +289,13 @@ Contributions welcome! Please:
 
 ---
 
-## 🔜 Coming Soon (Phase 4)
+## 🔜 Coming Soon (Phase 5)
 
-- 🗣️ Natural language chat with AI players
-- 💬 Accept player commands in plain English
-- 🤝 Multi-turn conversations
-- 📋 Complex task delegation
+- 🤖 LLM-generated skills (AI writes its own code!)
+- 🧠 Experience-based learning and adaptation
+- 👥 Multi-AI collaboration and coordination
+- 🗺️ World knowledge acquisition and landmark memory
+- 🤝 Player relationship system with trust tracking
 
 ---
 
