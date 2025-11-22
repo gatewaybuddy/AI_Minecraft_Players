@@ -10,10 +10,23 @@ This package contains everything you need to get started quickly.
 QUICK START
 ================================================================================
 
+⚠️  IMPORTANT: GET THE JAR FILE FIRST
+
+   This installation package does NOT include the compiled JAR file.
+
+   Download it from:
+     https://github.com/your-username/AI_Minecraft_Players/releases
+
+   Or build from source (see BUILD.md).
+
+   See GET_JAR.txt in this directory for complete instructions.
+
+================================================================================
+
 1. PLACE MOD FILE
    Copy the JAR file to your Minecraft server's mods folder:
 
-   cp ai-minecraft-player-*.jar /path/to/minecraft/server/mods/
+   cp ai-minecraft-player-0.1.0-SNAPSHOT.jar /path/to/minecraft/server/mods/
 
 2. START SERVER ONCE
    Start your Minecraft server to generate the config file:
@@ -105,7 +118,10 @@ DIRECTORY STRUCTURE
 
 install/
 ├── README.txt                          (This file)
-├── ai-minecraft-player-*.jar           (The mod - place in mods/)
+├── GET_JAR.txt                         (How to obtain the compiled JAR)
+├── MANIFEST.txt                        (Package contents and release info)
+├── quick-install.sh                    (Automated installer script)
+├── ai-minecraft-player-0.1.0-SNAPSHOT.jar  (⚠️  NOT INCLUDED - see GET_JAR.txt)
 ├── config/
 │   ├── aiplayer-config.json           (Main config - copy to server/config/)
 │   └── roles/                          (Personality presets)

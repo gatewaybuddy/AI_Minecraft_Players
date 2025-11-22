@@ -11,6 +11,26 @@ REQUIRED FILES:
    Description: The compiled mod file
    Note: Built from source using: gradle build
 
+   ⚠️  JAR FILE NOT INCLUDED IN SOURCE REPOSITORY
+
+   To obtain the JAR file:
+
+   OPTION 1 (Recommended): Download from GitHub Releases
+     - Visit: https://github.com/your-username/AI_Minecraft_Players/releases
+     - Download the latest release with pre-compiled JAR
+
+   OPTION 2: Build from source
+     - Requires proper Fabric mod development environment
+     - Run: gradle clean build
+     - JAR output: build/libs/ai-minecraft-player-0.1.0-SNAPSHOT.jar
+     - See BUILD.md for complete instructions
+
+   OPTION 3: Use complete release package
+     - Download ai-minecraft-player-install-v0.1.0.zip from releases
+     - Package includes pre-compiled JAR + all files below
+
+   See GET_JAR.txt in this directory for detailed instructions.
+
 2. README.txt
    Source: install/README.txt
    Description: Quick start guide and basic instructions
@@ -73,8 +93,9 @@ DIRECTORY STRUCTURE:
 install/
 ├── README.txt
 ├── MANIFEST.txt (this file)
+├── GET_JAR.txt (Instructions for obtaining JAR)
 ├── quick-install.sh
-├── ai-minecraft-player-0.1.0-SNAPSHOT.jar (from build)
+├── ai-minecraft-player-0.1.0-SNAPSHOT.jar (⚠️  NOT INCLUDED - obtain separately)
 ├── config/
 │   ├── aiplayer-config.json
 │   └── roles/
