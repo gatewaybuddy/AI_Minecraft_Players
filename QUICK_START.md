@@ -262,7 +262,7 @@ public class AIPlayerConfig {
 
 # The built mod will be in build/libs/
 # Copy it to your Minecraft mods folder
-cp build/libs/ai-minecraft-player-0.1.0.jar ~/.minecraft/mods/
+cp build/libs/ai-minecraft-player-0.1.0-SNAPSHOT.jar ~/.minecraft/mods/
 ```
 
 ### Step 4: Run in Development
