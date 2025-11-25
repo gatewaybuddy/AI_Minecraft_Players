@@ -36,7 +36,11 @@
     "movementHumanization": true,
     "chatEnabled": true,
     "autoRespawn": true,
-    "actionCacheSize": 100
+    "actionCacheSize": 100,
+    "_comment_aiUpdateIntervalTicks": "How often AI updates in ticks (20 ticks = 1 second). Lower = faster reactions. Recommended: 5-10 for testing, 10-20 for production",
+    "aiUpdateIntervalTicks": 5,
+    "_comment_brainDecisionIntervalTicks": "How often brain makes decisions in ticks. Lower = faster reactions to threats/terrain. Recommended: 4 (200ms aggressive), 8 (400ms balanced), 20 (1000ms conservative)",
+    "brainDecisionIntervalTicks": 8
   },
   "goals": {
     "defaultGoal": "explore and gather resources",

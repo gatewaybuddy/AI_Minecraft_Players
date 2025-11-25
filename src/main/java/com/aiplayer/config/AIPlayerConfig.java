@@ -97,6 +97,8 @@ public class AIPlayerConfig {
         private boolean chatEnabled = true;
         private boolean autoRespawn = true;
         private int actionCacheSize = 100;
+        private int aiUpdateIntervalTicks = 5; // How often AI updates (5 = 4 times per second, 10 = 2 times per second)
+        private int brainDecisionIntervalTicks = 8; // How often brain makes decisions (8 = 400ms, 4 = 200ms, 20 = 1000ms)
 
         public int getReactionTimeMs() {
             return reactionTimeMs;
@@ -116,6 +118,14 @@ public class AIPlayerConfig {
 
         public int getActionCacheSize() {
             return actionCacheSize;
+        }
+
+        public int getAiUpdateIntervalTicks() {
+            return aiUpdateIntervalTicks;
+        }
+
+        public int getBrainDecisionIntervalTicks() {
+            return brainDecisionIntervalTicks;
         }
     }
 

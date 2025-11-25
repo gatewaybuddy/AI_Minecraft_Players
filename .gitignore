@@ -53,3 +53,15 @@ remappedSrc/
 
 # Config files with API keys (keep template, ignore actual config with keys)
 config/aiplayer.json
+config/aiplayer-config.json
+# Root-level config files with API keys
+aiplayer.json
+aiplayer-config.json
+
+# API key token files
+claude_token.tmp
+*_token.tmp
+*.tmp
+
+# External repositories (for investigation/compatibility)
+xaero-pac-source/
