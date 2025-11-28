@@ -55,11 +55,13 @@ public class MovementController {
         World world = player.getWorld();
         BlockPos start = player.getBlockPos();
 
+        LOGGER.info("[MOVEMENT] Starting pathfinding - From: {} To: {}", start, target);
+
         // Find path
         Optional<PathfindingEngine.Path> pathOpt = pathfinder.findPath(start, target, world);
 
         if (pathOpt.isEmpty()) {
-            LOGGER.debug("No path found from {} to {}", start, target);
+            LOGGER.warn("[MOVEMENT] No path found from {} to {}", start, target);
             return false;
         }
 
@@ -67,7 +69,10 @@ public class MovementController {
         currentPathIndex = 0;
         isMoving = true;
 
-        LOGGER.debug("Found path with {} waypoints to {}", currentPath.getLength(), target);
+        LOGGER.info("[MOVEMENT] Path found - {} waypoints, distance: ~{} blocks",
+            currentPath.getLength(),
+            start.getSquaredDistance(target));
+        LOGGER.debug("[MOVEMENT] Path waypoints: {}", currentPath.getPositions());
         return true;
     }
 
@@ -77,6 +82,9 @@ public class MovementController {
      * @param target Target position
      */
     public void moveTowardsDirect(Vec3d target) {
+        LOGGER.info("[MOVEMENT] Starting direct movement (no pathfinding) - From: {} To: {}",
+            player.getPos(), target);
+
         this.targetPosition = target;
         this.currentPath = null;
         this.isMoving = true;
@@ -90,7 +98,11 @@ public class MovementController {
         if (distance > 0.1) {
             dx /= distance;
             dz /= distance;
+            LOGGER.debug("[MOVEMENT] Setting movement direction - dx: {}, dz: {}, distance: {}",
+                dx, dz, distance);
             player.setAIMovementDirection(dx, dz);
+        } else {
+            LOGGER.debug("[MOVEMENT] Already at target position");
         }
     }
 
@@ -101,6 +113,9 @@ public class MovementController {
         if (!isMoving) {
             return;
         }
+
+        LOGGER.debug("[MOVEMENT] Update - Path: {}, Direct: {}",
+            (currentPath != null), (targetPosition != null));
 
         // Path following
         if (currentPath != null) {
@@ -117,6 +132,9 @@ public class MovementController {
      */
     private void updatePathFollowing() {
         if (currentPath == null || currentPathIndex >= currentPath.getLength()) {
+            LOGGER.debug("[MOVEMENT] Path following ended - Path null: {}, Index: {}/{}",
+                (currentPath == null), currentPathIndex,
+                (currentPath != null ? currentPath.getLength() : 0));
             stopMovement();
             return;
         }
@@ -130,11 +148,13 @@ public class MovementController {
         if (distance < 1.0) {
             // Move to next waypoint
             currentPathIndex++;
+            LOGGER.debug("[MOVEMENT] Reached waypoint {} - Moving to next ({}/{})",
+                waypoint, currentPathIndex, currentPath.getLength());
 
             if (currentPathIndex >= currentPath.getLength()) {
                 // Path completed!
+                LOGGER.info("[MOVEMENT] Path following completed - Reached destination");
                 stopMovement();
-                LOGGER.debug("Path following completed");
                 return;
             }
 
@@ -151,10 +171,13 @@ public class MovementController {
         if (dist > 0.1) {
             dx /= dist;
             dz /= dist;
+            LOGGER.debug("[MOVEMENT] Moving towards waypoint {} - Direction: ({}, {}), Distance: {}",
+                waypoint, dx, dz, dist);
             player.setAIMovementDirection(dx, dz);
 
             // Jump if next waypoint is above us
             if (waypoint.getY() > player.getBlockY()) {
+                LOGGER.debug("[MOVEMENT] Jumping - waypoint Y {} > player Y {}", waypoint.getY(), player.getBlockY());
                 player.jump();
             }
         }
@@ -165,6 +188,7 @@ public class MovementController {
      */
     private void updateDirectMovement() {
         if (targetPosition == null) {
+            LOGGER.debug("[MOVEMENT] Direct movement ended - target is null");
             stopMovement();
             return;
         }
@@ -174,6 +198,7 @@ public class MovementController {
 
         // Reached target
         if (distance < 1.0) {
+            LOGGER.info("[MOVEMENT] Direct movement completed - Reached target {}", targetPosition);
             stopMovement();
             return;
         }
@@ -186,6 +211,8 @@ public class MovementController {
         if (dist > 0.1) {
             dx /= dist;
             dz /= dist;
+            LOGGER.debug("[MOVEMENT] Moving towards target {} - Direction: ({}, {}), Distance: {}",
+                targetPosition, dx, dz, dist);
             player.setAIMovementDirection(dx, dz);
         }
     }
@@ -194,10 +221,12 @@ public class MovementController {
      * Stop all movement.
      */
     public void stopMovement() {
+        LOGGER.info("[MOVEMENT] Stopping movement");
         isMoving = false;
         currentPath = null;
         targetPosition = null;
         player.stopMovement();
+        LOGGER.debug("[MOVEMENT] Movement stopped");
     }
 
     /**

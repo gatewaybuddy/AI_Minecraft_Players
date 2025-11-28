@@ -49,15 +49,17 @@ public class Goal {
      * Goal types categorize the nature of goals.
      */
     public enum GoalType {
-        SURVIVAL,       // Stay alive, get food, avoid danger
-        EXPLORATION,    // Explore the world, discover new areas
-        RESOURCE,       // Gather specific resources (wood, stone, etc.)
-        BUILDING,       // Build structures
-        SOCIAL,         // Interact with players
-        COMBAT,         // Fight mobs/players
-        CRAFTING,       // Craft items
-        PLAYER_REQUEST, // Fulfill player request
-        AUTONOMOUS      // Self-generated goal
+        SURVIVAL,            // Stay alive, get food, avoid danger
+        EXPLORATION,         // Explore the world, discover new areas
+        RESOURCE,            // Gather specific resources (wood, stone, etc.)
+        RESOURCE_GATHERING,  // Alias for RESOURCE
+        BUILDING,            // Build structures
+        BUILD,               // Alias for BUILDING
+        SOCIAL,              // Interact with players
+        COMBAT,              // Fight mobs/players
+        CRAFTING,            // Craft items
+        PLAYER_REQUEST,      // Fulfill player request
+        AUTONOMOUS           // Self-generated goal
     }
 
     /**
@@ -68,7 +70,8 @@ public class Goal {
         IN_PROGRESS,   // Currently working on it
         COMPLETED,     // Successfully finished
         FAILED,        // Could not complete
-        ABANDONED      // Gave up or superseded
+        ABANDONED,     // Gave up or superseded
+        CANCELLED      // Cancelled (same as abandoned)
     }
 
     // Getters
@@ -117,7 +120,8 @@ public class Goal {
 
     public void setStatus(GoalStatus status) {
         this.status = status;
-        if (status == GoalStatus.COMPLETED || status == GoalStatus.FAILED || status == GoalStatus.ABANDONED) {
+        if (status == GoalStatus.COMPLETED || status == GoalStatus.FAILED ||
+            status == GoalStatus.ABANDONED || status == GoalStatus.CANCELLED) {
             this.completedAt = System.currentTimeMillis();
         }
     }

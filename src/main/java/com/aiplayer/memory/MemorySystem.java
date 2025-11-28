@@ -34,6 +34,13 @@ public class MemorySystem {
     }
 
     /**
+     * Default constructor with standard memory limits.
+     */
+    public MemorySystem() {
+        this(1000); // Default to 1000 episodic memories
+    }
+
+    /**
      * Store a new memory.
      */
     public void store(Memory memory) {
@@ -160,12 +167,47 @@ public class MemorySystem {
     }
 
     /**
+     * Get working memory.
+     */
+    public WorkingMemory getWorkingMemory() {
+        return workingMemory;
+    }
+
+    /**
+     * Get episodic memory.
+     */
+    public EpisodicMemory getEpisodicMemory() {
+        return episodicMemory;
+    }
+
+    /**
+     * Get semantic memory.
+     */
+    public SemanticMemory getSemanticMemory() {
+        return semanticMemory;
+    }
+
+    /**
+     * Get recent memories (alias for recallRecent).
+     */
+    public List<Memory> getRecentMemories(int limit) {
+        return recallRecent(limit);
+    }
+
+    /**
      * Clear old memories (called periodically).
      */
     public void consolidate() {
         episodicMemory.consolidate();
         workingMemory.cleanup();
         LOGGER.debug("Memory consolidation complete");
+    }
+
+    /**
+     * Alias for consolidate() - cleanup old memories.
+     */
+    public void cleanup() {
+        consolidate();
     }
 
     /**

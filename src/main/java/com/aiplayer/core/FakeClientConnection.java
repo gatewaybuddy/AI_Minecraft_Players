@@ -30,13 +30,17 @@ public class FakeClientConnection extends ClientConnection {
     @Override
     public void send(Packet<?> packet) {
         // AI players don't need to receive packets
-        // Silently ignore
+        // Silently ignore all packets
+        // This includes config sync packets from mods during initialization
     }
 
     @Override
-    public void send(Packet<?> packet, @Nullable PacketSendListener listener) {
+    public void send(Packet<?> packet, net.minecraft.network.PacketCallbacks callbacks) {
         // AI players don't need to receive packets
-        // Silently ignore
+        // Silently ignore and mark as sent
+        if (callbacks != null) {
+            callbacks.onSuccess();
+        }
     }
 
     @Override

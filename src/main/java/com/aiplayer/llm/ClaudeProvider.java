@@ -130,10 +130,18 @@ public class ClaudeProvider implements LLMProvider {
                 .build();
 
             try (Response response = httpClient.newCall(request).execute()) {
-                return response.isSuccessful();
+                boolean success = response.isSuccessful();
+                if (!success) {
+                    LOGGER.warn("Claude API returned error: {} - {}",
+                        response.code(), response.message());
+                    if (response.body() != null) {
+                        LOGGER.warn("Response body: {}", response.body().string());
+                    }
+                }
+                return success;
             }
         } catch (Exception e) {
-            LOGGER.warn("Claude availability check failed", e);
+            LOGGER.error("Claude availability check failed: {}", e.getMessage(), e);
             return false;
         }
     }
@@ -170,8 +178,13 @@ public class ClaudeProvider implements LLMProvider {
         requestBody.add("messages", messages);
 
         // Generation parameters
-        requestBody.addProperty("temperature", options.getTemperature());
-        requestBody.addProperty("top_p", options.getTopP());
+        // Note: Claude Sonnet 4.5+ requires only temperature OR top_p, not both
+        // Only send top_p if it's not the default value (1.0)
+        if (options.getTopP() < 1.0) {
+            requestBody.addProperty("top_p", options.getTopP());
+        } else {
+            requestBody.addProperty("temperature", options.getTemperature());
+        }
 
         // Stop sequences
         if (!options.getStopSequences().isEmpty()) {

@@ -231,7 +231,8 @@ public class CombatController {
                 entity -> entity.isAlive() && player.distanceTo(entity) <= maxDistance
             )
             .stream()
-            .min((a, b) -> Double.compare(player.distanceTo(a), player.distanceTo(b)));
+            .min((a, b) -> Double.compare(player.distanceTo(a), player.distanceTo(b)))
+            .map(entity -> (LivingEntity) entity); // Cast to LivingEntity
     }
 
     /**

@@ -65,6 +65,7 @@ public class PlanningEngine {
 
         // Periodic planning
         if (ticksSinceLastPlan >= planningInterval) {
+            LOGGER.info("[PLAN] Planning interval reached - triggering replan | Active goals: {}", activeGoals.size());
             replan(worldState);
             ticksSinceLastPlan = 0;
         }
@@ -77,21 +78,28 @@ public class PlanningEngine {
      * Generate new plan based on current state.
      */
     public CompletableFuture<Goal> replan(WorldState worldState) {
-        LOGGER.debug("Replanning...");
+        LOGGER.info("[PLAN] Starting replan - Building context from world state");
 
         // Build context for LLM
         String context = buildPlanningContext(worldState);
+        LOGGER.debug("[PLAN] Context built - Length: {} chars, Memories: {}",
+            context.length(), memorySystem.getWorkingMemory().size());
 
         // Generate plan using LLM
         LLMOptions options = LLMOptions.planning()
             .systemPrompt(getPlanningSystemPrompt());
 
+        LOGGER.info("[PLAN] Sending request to LLM - Provider: {}, Model: {}",
+            llmProvider.getProviderName(), llmProvider.getModelName());
+
         return llmProvider.complete(context, options)
             .thenApply(response -> {
+                LOGGER.debug("[PLAN] Received LLM response - Length: {} chars", response.length());
                 Goal goal = parsePlanFromResponse(response);
                 if (goal != null) {
                     addGoal(goal);
-                    LOGGER.info("Generated new goal: {}", goal.getDescription());
+                    LOGGER.info("[PLAN] Successfully generated goal: Type={}, Priority={}, Desc='{}'",
+                        goal.getType(), goal.getPriority(), goal.getDescription());
 
                     // Store planning event in memory
                     memorySystem.store(new Memory(
@@ -99,11 +107,13 @@ public class PlanningEngine {
                         "Planned: " + goal.getDescription(),
                         0.7
                     ));
+                } else {
+                    LOGGER.warn("[PLAN] Failed to parse goal from LLM response");
                 }
                 return goal;
             })
             .exceptionally(e -> {
-                LOGGER.error("Planning failed", e);
+                LOGGER.error("[PLAN] LLM planning request failed", e);
                 return null;
             });
     }
@@ -112,6 +122,8 @@ public class PlanningEngine {
      * Add a new goal.
      */
     public void addGoal(Goal goal) {
+        LOGGER.debug("[PLAN] Adding goal to queue - Type: {}, Priority: {}", goal.getType(), goal.getPriority());
+
         if (activeGoals.size() >= maxGoals) {
             // Remove lowest priority goal
             Goal lowest = activeGoals.stream()
@@ -119,25 +131,40 @@ public class PlanningEngine {
                 .orElse(null);
 
             if (lowest != null && lowest.getPriority() < goal.getPriority()) {
+                LOGGER.debug("[PLAN] Goal queue full - removing lower priority goal: '{}'", lowest.getDescription());
                 activeGoals.remove(lowest);
                 lowest.setStatus(Goal.GoalStatus.CANCELLED);
             } else {
-                LOGGER.warn("Cannot add goal - at max capacity and no lower priority goals");
+                LOGGER.warn("[PLAN] Cannot add goal - at max capacity ({}/{}) and no lower priority goals",
+                    activeGoals.size(), maxGoals);
                 return;
             }
         }
 
         activeGoals.addFirst(goal);
         allGoals.put(goal.getId(), goal);
+        LOGGER.debug("[PLAN] Goal added to queue - Queue size: {}/{}", activeGoals.size(), maxGoals);
     }
 
     /**
      * Get current top priority goal.
      */
     public Optional<Goal> getCurrentGoal() {
-        return activeGoals.stream()
+        Optional<Goal> currentGoal = activeGoals.stream()
             .filter(g -> g.getStatus() == Goal.GoalStatus.IN_PROGRESS || g.getStatus() == Goal.GoalStatus.PENDING)
             .findFirst();
+
+        if (currentGoal.isPresent()) {
+            LOGGER.debug("[PLAN] Retrieved current goal: Type={}, Status={}, Priority={}, Desc='{}'",
+                currentGoal.get().getType(),
+                currentGoal.get().getStatus(),
+                currentGoal.get().getPriority(),
+                currentGoal.get().getDescription());
+        } else {
+            LOGGER.debug("[PLAN] No active goals available (queue size: {})", activeGoals.size());
+        }
+
+        return currentGoal;
     }
 
     /**
@@ -297,6 +324,8 @@ public class PlanningEngine {
      */
     private Goal parsePlanFromResponse(String response) {
         try {
+            LOGGER.debug("[PLAN] Parsing LLM response...");
+
             // Extract fields using regex
             String thought = extractField(response, "THOUGHT:");
             String goalDesc = extractField(response, "GOAL:");
@@ -304,9 +333,12 @@ public class PlanningEngine {
             String tasksStr = extractField(response, "TASKS:");
 
             if (goalDesc == null || goalDesc.trim().isEmpty()) {
-                LOGGER.warn("Failed to parse goal from response");
+                LOGGER.warn("[PLAN] Failed to parse goal from response - no GOAL field found");
+                LOGGER.debug("[PLAN] Response content: {}", response);
                 return null;
             }
+
+            LOGGER.debug("[PLAN] Extracted GOAL: '{}'", goalDesc);
 
             // Parse priority
             int priority = 5; // default
@@ -314,31 +346,36 @@ public class PlanningEngine {
                 try {
                     priority = Integer.parseInt(priorityStr.trim());
                     priority = Math.max(1, Math.min(10, priority)); // Clamp to 1-10
+                    LOGGER.debug("[PLAN] Extracted PRIORITY: {}", priority);
                 } catch (NumberFormatException e) {
-                    LOGGER.warn("Failed to parse priority: {}", priorityStr);
+                    LOGGER.warn("[PLAN] Failed to parse priority '{}' - using default: {}", priorityStr, priority);
                 }
+            } else {
+                LOGGER.debug("[PLAN] No PRIORITY field - using default: {}", priority);
             }
 
             // Determine goal type from description
             Goal.GoalType type = inferGoalType(goalDesc);
+            LOGGER.debug("[PLAN] Inferred goal type: {}", type);
 
             // Create goal
-            Goal goal = new Goal(goalDesc, type, priority);
+            Goal goal = new Goal(goalDesc, type, priority, null); // null = autonomous goal
 
             // Parse tasks (simplified - just store as description for now)
             // In Phase 4, we'll create actual Task objects
             if (tasksStr != null && !tasksStr.trim().isEmpty()) {
-                LOGGER.debug("Planned tasks: {}", tasksStr);
+                LOGGER.debug("[PLAN] Extracted TASKS: {}", tasksStr);
             }
 
             if (thought != null && !thought.trim().isEmpty()) {
-                LOGGER.debug("LLM reasoning: {}", thought);
+                LOGGER.debug("[PLAN] LLM reasoning (THOUGHT): {}", thought);
             }
 
+            LOGGER.info("[PLAN] Successfully parsed goal from LLM response");
             return goal;
 
         } catch (Exception e) {
-            LOGGER.error("Failed to parse plan from response", e);
+            LOGGER.error("[PLAN] Failed to parse plan from response", e);
             return null;
         }
     }

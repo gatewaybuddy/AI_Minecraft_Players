@@ -169,7 +169,7 @@ public class AIPlayerCommand {
         );
 
         // Also show perception stats
-        String perceptionStats = player.getBrain().getCurrentGoalDescription();
+        String perceptionStats = player.getAIBrain().getCurrentGoalDescription();
         source.sendFeedback(
             () -> Text.literal("Current Goal: " + perceptionStats),
             false

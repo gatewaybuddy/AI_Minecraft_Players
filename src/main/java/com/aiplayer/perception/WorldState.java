@@ -159,6 +159,7 @@ public class WorldState {
 
         public UUID getId() { return id; }
         public String getType() { return type; }
+        public String getName() { return type; } // Alias for getType()
         public Vec3d getPosition() { return position; }
         public float getHealth() { return health; }
         public boolean isHostile() { return isHostile; }

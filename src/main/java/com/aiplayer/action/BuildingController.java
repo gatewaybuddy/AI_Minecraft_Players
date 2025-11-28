@@ -88,6 +88,8 @@ public class BuildingController {
                 // Place block
                 boolean success = player.interactionManager.interactBlock(
                     player,
+                    player.getWorld(),
+                    player.getStackInHand(Hand.MAIN_HAND),
                     Hand.MAIN_HAND,
                     hitResult
                 ).isAccepted();

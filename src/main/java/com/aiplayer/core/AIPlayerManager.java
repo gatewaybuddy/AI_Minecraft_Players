@@ -5,7 +5,10 @@ import com.aiplayer.config.AIPlayerConfig;
 import com.aiplayer.llm.LLMFactory;
 import com.aiplayer.llm.LLMProvider;
 import com.mojang.authlib.GameProfile;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.network.packet.s2c.play.*;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -157,14 +160,84 @@ public class AIPlayerManager {
             // Set spawn position
             aiPlayer.refreshPositionAndAngles(spawnPos.x, spawnPos.y, spawnPos.z, 0, 0);
 
-            // Add to world
+            // Create fake network handler to prevent crashes when the server tries to send packets
+            FakeClientConnection connection = new FakeClientConnection(aiPlayer);
+            net.minecraft.server.network.ServerPlayNetworkHandler networkHandler =
+                new net.minecraft.server.network.ServerPlayNetworkHandler(server, connection, aiPlayer);
+            aiPlayer.networkHandler = networkHandler;
+
+            // IMPORTANT: Order matters for client synchronization!
+
+            // 1. Add to player list FIRST (before any packets)
+            server.getPlayerManager().getPlayerList().add(aiPlayer);
+
+            // 2. Send player info to all players (adds to tab list)
+            server.getPlayerManager().sendToAll(new PlayerListS2CPacket(
+                PlayerListS2CPacket.Action.ADD_PLAYER,
+                aiPlayer
+            ));
+
+            // 3. Add to world (spawns entity server-side)
             world.spawnEntity(aiPlayer);
 
-            // Add to player manager
-            server.getPlayerManager().onPlayerConnect(
-                new FakeClientConnection(aiPlayer),
-                aiPlayer
-            );
+            // 4. Send entity spawn packet to all nearby players
+            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+                if (player != aiPlayer) {
+                    // Send player spawn packet (different from regular entity spawn)
+                    player.networkHandler.sendPacket(new PlayerSpawnS2CPacket(aiPlayer));
+
+                    // Send entity metadata
+                    if (aiPlayer.getDataTracker().getChangedEntries() != null) {
+                        player.networkHandler.sendPacket(new EntityTrackerUpdateS2CPacket(
+                            aiPlayer.getId(),
+                            aiPlayer.getDataTracker().getChangedEntries()
+                        ));
+                    }
+                }
+            }
+
+            // 5. Make sure entity is tracked by chunk manager
+            world.getChunkManager().updatePosition(aiPlayer);
+
+            // Initialize Xaero's PAC data for this AI player
+            // This prevents the null task crash by properly initializing party/claim data
+            try {
+                // Get ServerData
+                Class<?> serverDataClass = Class.forName("xaero.pac.common.server.ServerData");
+                java.lang.reflect.Method getServerData = serverDataClass.getMethod("from", net.minecraft.server.MinecraftServer.class);
+                Object serverData = getServerData.invoke(null, server);
+
+                // Create ServerPlayerData manually
+                Class<?> serverPlayerDataClass = Class.forName("xaero.pac.common.server.player.data.ServerPlayerData");
+                Object playerData = serverPlayerDataClass.getDeclaredConstructor().newInstance();
+
+                // Set it on the player (via IOpenPACServerPlayer interface)
+                Class<?> openPACPlayerInterface = Class.forName("xaero.pac.common.server.player.data.IOpenPACServerPlayer");
+                java.lang.reflect.Method setPlayerData = openPACPlayerInterface.getMethod("setXaero_OPAC_PlayerData",
+                    Class.forName("xaero.pac.common.server.player.data.api.ServerPlayerDataAPI"));
+                setPlayerData.invoke(aiPlayer, playerData);
+
+                // Manually call login handlers
+                Object loginHandler = serverData.getClass().getMethod("getPlayerLoginHandler").invoke(serverData);
+                java.lang.reflect.Method handlePreWorldJoin = loginHandler.getClass().getMethod("handlePreWorldJoin",
+                    net.minecraft.server.network.ServerPlayerEntity.class,
+                    Class.forName("xaero.pac.common.server.IServerData"));
+                handlePreWorldJoin.invoke(loginHandler, aiPlayer, serverData);
+
+                java.lang.reflect.Method handlePostWorldJoin = loginHandler.getClass().getMethod("handlePostWorldJoin",
+                    net.minecraft.server.network.ServerPlayerEntity.class,
+                    Class.forName("xaero.pac.common.server.IServerData"));
+                handlePostWorldJoin.invoke(loginHandler, aiPlayer, serverData);
+
+                LOGGER.info("Initialized Xaero PAC data and login handlers for AI player");
+            } catch (ClassNotFoundException e) {
+                LOGGER.debug("Xaero's PAC not installed - skipping party data initialization");
+            } catch (Exception e) {
+                LOGGER.warn("Failed to initialize Xaero PAC data for AI player: {}", e.getMessage());
+                e.printStackTrace();
+            }
+
+            LOGGER.info("AI player spawned successfully");
 
             // Track the player
             aiPlayers.put(username, aiPlayer);

@@ -77,7 +77,7 @@ public class LLMFactory {
             // Wrap with cache if enabled
             if (enableCache) {
                 LOGGER.info("Enabled response caching for {}", provider.getProviderName());
-                return new CachedLLMProvider(provider);
+                return new LLMCache(provider);
             }
 
             return provider;

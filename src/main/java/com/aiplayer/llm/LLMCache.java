@@ -22,8 +22,10 @@ import java.util.concurrent.TimeUnit;
  * - Size: 1000 entries (~10MB memory)
  * - Expiration: 1 hour
  * - Eviction: LRU (least recently used)
+ *
+ * Implements LLMProvider to act as a transparent caching layer.
  */
-public class LLMCache {
+public class LLMCache implements LLMProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LLMCache.class);
 

@@ -22,16 +22,20 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    // HTTP client for LLM APIs
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    // HTTP client for LLM APIs (bundled in JAR)
+    // Note: Using older version for better compatibility
+    include(implementation('com.squareup.okhttp3:okhttp:4.11.0'))
+    include(implementation('com.squareup.okio:okio-jvm:3.5.0'))
+    include(implementation('org.jetbrains.kotlin:kotlin-stdlib:1.9.10'))
+    include(implementation('org.jetbrains.kotlin:kotlin-stdlib-common:1.9.10'))
 
-    // JSON parsing
+    // JSON parsing (already provided by Minecraft)
     implementation 'com.google.code.gson:gson:2.10.1'
 
-    // Caching for LLM responses
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    // Caching for LLM responses (bundled in JAR)
+    include(implementation('com.github.ben-manes.caffeine:caffeine:3.1.8'))
 
-    // Logging
+    // Logging (already provided by Minecraft)
     implementation 'org.slf4j:slf4j-api:2.0.9'
 
     // Annotations

@@ -46,6 +46,11 @@ public class ActionController {
      * Update all controllers (called periodically).
      */
     public void update() {
+        LOGGER.debug("[ACTION] Update cycle - Moving: {}, Mining: {}, Combat: {}",
+            movementController.isMoving(),
+            miningController.isMining(),
+            combatController.getCurrentTarget().isPresent());
+
         // Update movement (handles path following)
         movementController.update();
 
@@ -86,20 +91,28 @@ public class ActionController {
      * Stop all current actions.
      */
     public void stopAll() {
+        LOGGER.info("[ACTION] Stopping all actions for {}", player.getName().getString());
+
         movementController.stopMovement();
         miningController.cancelMining();
         combatController.clearTarget();
 
-        LOGGER.debug("Stopped all actions for {}", player.getName().getString());
+        LOGGER.debug("[ACTION] All actions stopped");
     }
 
     /**
      * Check if any action is currently executing.
      */
     public boolean isBusy() {
-        return movementController.isMoving() ||
-               miningController.isMining() ||
-               combatController.getCurrentTarget().isPresent();
+        boolean busy = movementController.isMoving() ||
+                      miningController.isMining() ||
+                      combatController.getCurrentTarget().isPresent();
+
+        if (busy) {
+            LOGGER.debug("[ACTION] Controller is busy - Status: {}", getStatusSummary());
+        }
+
+        return busy;
     }
 
     /**

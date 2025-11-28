@@ -50,7 +50,10 @@ public class Memory {
         LEARNING,        // Learned something (strategy, fact, etc.)
         RELATIONSHIP,    // Interaction with another player
         DISCOVERY,       // Found something new
-        EVENT            // General event
+        EVENT,           // General event
+        PLANNING,        // Planning and decision making
+        ACHIEVEMENT,     // Completed achievement (same as GOAL_COMPLETION)
+        FAILURE          // Failed at something (same as GOAL_FAILURE)
     }
 
     // Getters

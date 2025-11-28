@@ -1,6 +1,7 @@
 package com.aiplayer;
 
 import com.aiplayer.command.AIPlayerCommand;
+import com.aiplayer.compat.XaeroCompatHandler;
 import com.aiplayer.config.AIPlayerConfig;
 import com.aiplayer.core.AIPlayerManager;
 import net.fabricmc.api.ModInitializer;
@@ -39,6 +40,9 @@ public class AIPlayerMod implements ModInitializer {
         try {
             // Load configuration
             loadConfiguration();
+
+            // Initialize compatibility handlers
+            XaeroCompatHandler.initialize();
 
             // Initialize AI player manager
             playerManager = new AIPlayerManager();
